@@ -284,13 +284,57 @@ URL da Imagem Interna 3:
 
 | Botão | Função | Efeito |
 |-------|--------|--------|
-| 🧪 **Preencher Teste** | Preenche TODOS os campos obrigatórios | Para testar rapidamente o formulário completo |
+| 🧪 **Preencher Teste** | Preenche TODOS os campos com 5 versões diferentes | Alterna entre 5 posts pré-prontos a cada clique |
 | 🗑️ **Limpar Campos** | Limpa formulário + localStorage | Com confirmação |
 | ⚙️ **Configurar GitHub** | Abre modal de token | Para publicação automática |
 
-### 🧪 Botão "Preencher Teste" - Campos Preenchidos
+### 🧪 Botão "Preencher Teste" - 5 Versões de Conteúdo
 
-O botão agora preenche **TODOS** os campos obrigatórios automaticamente:
+O botão **alterna entre 5 versões diferentes** de conteúdo de teste a cada clique. Isso permite testar rapidamente múltiplos posts sem precisar preencher manualmente.
+
+#### Como Funciona
+
+```
+1º clique → Versão 1
+2º clique → Versão 2
+3º clique → Versão 3
+4º clique → Versão 4
+5º clique → Versão 5
+6º clique → Volta para Versão 1 (ciclo)
+```
+
+#### ⚠️ IMPORTANTE: Personalizar para seu Nicho
+
+**As 5 versões de teste estão configuradas para o nicho de MOTEL.** Ao replicar este projeto para outro nicho, você deve editar o array `testDataVersions` no arquivo `assets/js/form-script.js`:
+
+```javascript
+// Localização: assets/js/form-script.js (linha ~150)
+const testDataVersions = [
+    {
+        h1Title: 'Título do Post 1 para SEU NICHO',
+        slug: 'slug-do-post-1',
+        category: 'Categoria',
+        // ... demais campos
+    },
+    {
+        h1Title: 'Título do Post 2 para SEU NICHO',
+        // ... 
+    },
+    // ... até 5 versões
+];
+```
+
+#### Versões Atuais (Nicho: Motel)
+
+| # | Título | Categoria |
+|---|--------|-----------|
+| 1 | 5 Dicas para Noite Romântica Perfeita | Dicas |
+| 2 | Suítes com Hidromassagem | Suítes |
+| 3 | Como Comemorar Aniversário de Namoro | Romance |
+| 4 | Gastronomia: Cardápio Exclusivo | Gastronomia |
+| 5 | Por que o Pernoite é a Melhor Opção | Experiências |
+
+#### Campos Preenchidos em Cada Versão
 
 **BLOCO 1 - Identidade:**
 - Título H1, Slug, Categoria, Autor, Data, Avatar, Tempo de leitura
@@ -824,7 +868,14 @@ Clicar: ✨ Gerar Post
 ---
 
 **Última atualização:** 13 de Janeiro de 2026  
-**Versão:** 4.0 (Formulário de Captura de Leads + Webhook)
+**Versão:** 4.1 (5 Versões de Teste + Personalização por Nicho)
+
+### Changelog v4.1:
+- ✅ **5 versões de conteúdo de teste** ao invés de apenas 1
+- ✅ **Alternância automática** a cada clique em "Preencher Teste"
+- ✅ **Feedback visual** mostrando qual versão foi usada
+- ✅ **Documentação** de como personalizar para outros nichos
+- ✅ **Array `testDataVersions`** no form-script.js para fácil edição
 
 ### Changelog v4.0:
 - ✅ **Formulário de captura de leads** substitui o CTA com link
@@ -842,6 +893,78 @@ Clicar: ✨ Gerar Post
 - ✅ **Template para IA** com geração de prompts de imagens
 - ✅ **4 campos de imagem** no template (1 capa + 3 internas)
 - ✅ **Fix localStorage** que não sobrescreve o template atualizado
+
+---
+
+## 🔄 PERSONALIZAÇÃO PARA OUTROS NICHOS
+
+### Ao Duplicar o Projeto
+
+Quando você replicar este projeto para um cliente de **outro nicho** (não motel), lembre-se de:
+
+1. **Alterar as 5 versões de teste** em `assets/js/form-script.js`
+2. **Alterar as categorias** em `postin.html`
+3. **Alterar os textos padrão** do formulário de captura
+4. **Alterar as cores/branding** no CSS
+
+### Editando as 5 Versões de Teste
+
+Localize o array `testDataVersions` no arquivo `assets/js/form-script.js` (aproximadamente linha 150):
+
+```javascript
+const testDataVersions = [
+    // VERSÃO 1
+    {
+        h1Title: 'Título do Post 1 para SEU NICHO',
+        slug: 'slug-post-1-seu-nicho',
+        category: 'Categoria do Nicho',
+        author: 'Nome do Autor/Empresa',
+        primaryKeyword: 'palavra-chave principal',
+        secondaryKeywords: 'kw1, kw2, kw3',
+        metaTitle: 'Meta Title para SEO',
+        metaDescription: 'Meta description de até 160 caracteres...',
+        introduction: 'Introdução do post...',
+        contentBody: '<h2>Seção 1</h2><p>Conteúdo...</p>',
+        conclusion: 'Conclusão do post...',
+        tags: 'tag1, tag2, tag3',
+        formTitle: 'CTA do Formulário',
+        formDescription: 'Descrição persuasiva...',
+        formButtonText: 'Texto do Botão',
+        siteUrl: 'https://seusite.com.br',
+        // ... demais campos
+    },
+    // VERSÃO 2, 3, 4, 5...
+];
+```
+
+### Exemplos de Versões por Nicho
+
+#### Nicho: Contabilidade
+| # | Título | Categoria |
+|---|--------|-----------|
+| 1 | Como Regularizar Sua Empresa | Regularização |
+| 2 | Impostos para MEI: Guia Completo | Impostos |
+| 3 | Declaração de IR: Passo a Passo | IRPF |
+| 4 | Benefícios de Contratar um Contador | Serviços |
+| 5 | Erros Fiscais que Podem Quebrar Sua Empresa | Dicas |
+
+#### Nicho: Advocacia
+| # | Título | Categoria |
+|---|--------|-----------|
+| 1 | Direitos Trabalhistas que Você Não Conhece | Trabalhista |
+| 2 | Como Funciona o Divórcio Consensual | Família |
+| 3 | Indenização por Danos Morais | Civil |
+| 4 | Direitos do Consumidor Online | Consumidor |
+| 5 | Quando Contratar um Advogado | Dicas |
+
+#### Nicho: Clínica Estética
+| # | Título | Categoria |
+|---|--------|-----------|
+| 1 | Botox: Mitos e Verdades | Procedimentos |
+| 2 | Harmonização Facial: O Guia Completo | Harmonização |
+| 3 | Cuidados Pós-Procedimento | Dicas |
+| 4 | Tendências em Estética 2026 | Tendências |
+| 5 | Como Escolher sua Clínica de Estética | Guia |
 
 ---
 
