@@ -143,6 +143,172 @@ function clearFormData() {
     }
 }
 
+// Contador para alternar entre versões de teste
+let testDataIndex = 0;
+
+// 5 versões de conteúdo de teste para o nicho de motel
+const testDataVersions = [
+    // ============================================
+    // VERSÃO 1: Dicas para Noite Romântica
+    // ============================================
+    {
+        h1Title: '5 Dicas para uma Noite Romântica Perfeita no Motel',
+        slug: '5-dicas-noite-romantica-perfeita-motel-xenon',
+        category: 'Dicas',
+        author: 'Equipe Xenon',
+        authorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
+        readTime: '6',
+        primaryKeyword: 'noite romântica motel',
+        secondaryKeywords: 'motel Criciúma, suíte luxo, romance, experiência casal, Motel Xenon',
+        metaTitle: '5 Dicas para Noite Romântica Perfeita | Motel Xenon',
+        metaDescription: 'Descubra como criar uma noite romântica inesquecível no Motel Xenon. Dicas exclusivas, suítes de luxo e experiências únicas em Criciúma. Confira!',
+        searchIntent: 'Informacional',
+        coverImage: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=1200',
+        coverImageAlt: 'Suíte romântica decorada com pétalas de rosas e iluminação ambiente',
+        coverImageCaption: 'Ambiente perfeito para momentos especiais a dois',
+        introduction: 'Uma noite romântica no motel pode ser muito mais do que você imagina. No Motel Xenon, em Criciúma, oferecemos não apenas suítes luxuosas, mas toda a atmosfera e os detalhes que transformam um encontro comum em uma experiência inesquecível. Neste artigo, compartilhamos 5 dicas essenciais para você e seu par aproveitarem ao máximo sua visita.',
+        contentBody: '<h2>1. Escolha a Suíte Ideal para o Momento</h2><p>O Motel Xenon oferece diferentes tipos de suítes, cada uma com seu charme único. Para uma noite romântica especial, nossas suítes premium contam com hidromassagem privativa, iluminação LED personalizável e decoração sofisticada.</p><h3>O Que Considerar na Escolha</h3><ul><li>Hidromassagem para relaxamento a dois</li><li>Sistema de som ambiente</li><li>Iluminação ajustável para criar o clima perfeito</li><li>Cama king size com roupa de cama premium</li></ul><h2>2. Aproveite Nosso Cardápio Especial</h2><p>O Motel Xenon oferece um cardápio exclusivo com opções que vão desde petiscos deliciosos até jantares completos. Não deixe de experimentar nossa garrafa de vinho especial.</p><h2>3. Reserve com Antecedência</h2><p>Para garantir a suíte dos seus sonhos, especialmente em finais de semana e datas especiais, recomendamos fazer sua reserva com antecedência.</p><h2>4. Planeje Surpresas Especiais</h2><p>O Motel Xenon pode ajudar você a preparar surpresas inesquecíveis. Entre em contato previamente e nossa equipe organizará decorações especiais.</p><h2>5. Relaxe e Aproveite a Privacidade</h2><p>No Motel Xenon, sua privacidade e conforto são nossa prioridade. Todas as nossas suítes oferecem total discrição e garagem privativa.</p>',
+        conclusion: 'Uma noite romântica no Motel Xenon é mais do que hospedagem - é uma experiência completa. Com nossas suítes de luxo e atendimento impecável, garantimos que cada momento seja especial. Reserve agora sua suíte!',
+        tags: 'motel Criciúma, noite romântica, suíte luxo, experiência casal, romance, Motel Xenon',
+        relatedPosts: '/blog/suites-premium-xenon, /blog/gastronomia-especial-motel',
+        formTitle: 'Quer Viver Esta Experiência?',
+        formDescription: 'Deixe seus dados e nossa equipe entrará em contato para ajudá-lo a planejar sua noite perfeita no Motel Xenon.',
+        formButtonText: 'Quero Reservar',
+        formWebhookUrl: '',
+        formDestinationEmail: 'contato@xenonmotel.com.br',
+        siteUrl: 'https://xenonmotel.com.br',
+        siteLogo: 'https://xenonmotel.com.br/logo.png'
+    },
+    
+    // ============================================
+    // VERSÃO 2: Suítes com Hidromassagem
+    // ============================================
+    {
+        h1Title: 'Suítes com Hidromassagem: Por que Escolher o Motel Xenon',
+        slug: 'suites-hidromassagem-motel-xenon-criciuma',
+        category: 'Suítes',
+        author: 'Equipe Xenon',
+        authorAvatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200',
+        readTime: '5',
+        primaryKeyword: 'suíte hidromassagem motel',
+        secondaryKeywords: 'motel com hidro, banheira casal, spa privativo, relaxamento, Criciúma',
+        metaTitle: 'Suítes com Hidromassagem em Criciúma | Motel Xenon',
+        metaDescription: 'Conheça as suítes com hidromassagem do Motel Xenon em Criciúma. Banheiras de casal, spa privativo e máximo conforto para você relaxar.',
+        searchIntent: 'Transacional',
+        coverImage: 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=1200',
+        coverImageAlt: 'Banheira de hidromassagem luxuosa com iluminação ambiente',
+        coverImageCaption: 'Nossas suítes premium contam com hidromassagem para dois',
+        introduction: 'Depois de uma semana agitada, nada como relaxar em uma banheira de hidromassagem com quem você ama. No Motel Xenon, oferecemos suítes especialmente projetadas para proporcionar momentos únicos de relaxamento e conexão. Descubra por que nossas hidros são as mais procuradas de Criciúma.',
+        contentBody: '<h2>O Diferencial das Nossas Hidromassagens</h2><p>Todas as banheiras de hidromassagem do Motel Xenon são projetadas para casais, com espaço generoso, jatos terapêuticos e iluminação LED que cria um ambiente único e relaxante.</p><h3>Características das Nossas Hidros</h3><ul><li>Capacidade para dois com conforto total</li><li>Jatos terapêuticos reguláveis</li><li>Iluminação LED multicolorida</li><li>Temperatura controlável</li><li>Produtos de banho premium inclusos</li></ul><h2>Benefícios do Banho a Dois</h2><p>A hidromassagem não é apenas luxo - é uma forma comprovada de relaxamento que libera tensões, melhora a circulação e fortalece a conexão entre o casal.</p><h3>Para Corpo e Mente</h3><ul><li>Alívio de tensões musculares</li><li>Melhora da circulação sanguínea</li><li>Redução do estresse</li><li>Momento de intimidade e conexão</li></ul><h2>Tipos de Suítes com Hidro</h2><p>Oferecemos diferentes categorias de suítes com hidromassagem, desde as Standard até as Master, cada uma com características únicas para atender suas preferências.</p>',
+        conclusion: 'Uma suíte com hidromassagem no Motel Xenon é o destino perfeito para casais que buscam relaxamento e privacidade. Nossas instalações são constantemente higienizadas e mantidas para garantir sua segurança e conforto. Agende sua visita!',
+        tags: 'hidromassagem, suíte casal, spa privativo, motel Criciúma, relaxamento, Motel Xenon',
+        relatedPosts: '/blog/noite-romantica-xenon, /blog/suites-master-xenon',
+        formTitle: 'Reserve Sua Suíte com Hidro!',
+        formDescription: 'Deixe seus dados e receba informações sobre disponibilidade e valores das nossas suítes com hidromassagem.',
+        formButtonText: 'Quero Saber Mais',
+        formWebhookUrl: '',
+        formDestinationEmail: 'contato@xenonmotel.com.br',
+        siteUrl: 'https://xenonmotel.com.br',
+        siteLogo: 'https://xenonmotel.com.br/logo.png'
+    },
+    
+    // ============================================
+    // VERSÃO 3: Comemorar Aniversário de Namoro
+    // ============================================
+    {
+        h1Title: 'Como Comemorar seu Aniversário de Namoro no Motel Xenon',
+        slug: 'comemorar-aniversario-namoro-motel-xenon',
+        category: 'Romance',
+        author: 'Equipe Xenon',
+        authorAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200',
+        readTime: '7',
+        primaryKeyword: 'aniversário de namoro motel',
+        secondaryKeywords: 'comemoração casal, data especial, surpresa romântica, celebração, presente namoro',
+        metaTitle: 'Aniversário de Namoro no Motel | Ideias Especiais | Xenon',
+        metaDescription: 'Planejando uma comemoração especial de aniversário de namoro? O Motel Xenon tem pacotes exclusivos para tornar sua data inesquecível. Confira!',
+        searchIntent: 'Informacional',
+        coverImage: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=1200',
+        coverImageAlt: 'Casal brindando com champagne em ambiente romântico',
+        coverImageCaption: 'Celebre seu amor em grande estilo',
+        introduction: 'Aniversário de namoro merece uma comemoração à altura do seu amor. No Motel Xenon, sabemos como tornar essa data ainda mais especial com suítes decoradas, pacotes românticos e um atendimento que cuida de cada detalhe. Confira nossas dicas para uma celebração perfeita.',
+        contentBody: '<h2>Pacotes Especiais para Datas Comemorativas</h2><p>O Motel Xenon oferece pacotes exclusivos para aniversários de namoro que incluem decoração temática, espumante, chocolates finos e muito mais. Nossa equipe pode personalizar a experiência conforme suas preferências.</p><h3>O que Incluímos</h3><ul><li>Decoração com pétalas de rosas</li><li>Espumante nacional ou importado</li><li>Chocolates artesanais</li><li>Velas aromáticas</li><li>Playlist romântica personalizada</li></ul><h2>Surpresas que Podemos Preparar</h2><p>Quer surpreender seu amor? Entre em contato antes da data e nossa equipe preparará tudo para que a surpresa seja perfeita. Desde decorações especiais até presentes deixados na suíte.</p><h3>Ideias de Surpresas</h3><ul><li>Balões personalizados</li><li>Fotos do casal espalhadas pela suíte</li><li>Café da manhã especial</li><li>Jantar romântico servido na suíte</li></ul><h2>Escolha o Melhor Horário</h2><p>Para aniversários de namoro, recomendamos o pernoite. Assim vocês têm tempo para aproveitar cada momento sem pressa, desde o jantar até o café da manhã.</p>',
+        conclusion: 'Seu aniversário de namoro merece ser comemorado em grande estilo. No Motel Xenon, cuidamos de todos os detalhes para que você e seu amor vivam uma experiência inesquecível. Entre em contato e planeje sua surpresa conosco!',
+        tags: 'aniversário namoro, comemoração casal, surpresa romântica, motel Criciúma, data especial, Motel Xenon',
+        relatedPosts: '/blog/dicas-noite-romantica, /blog/pacotes-especiais-xenon',
+        formTitle: 'Planeje Sua Surpresa!',
+        formDescription: 'Deixe seus dados e nossa equipe entrará em contato para ajudá-lo a preparar uma comemoração inesquecível.',
+        formButtonText: 'Quero Surpreender',
+        formWebhookUrl: '',
+        formDestinationEmail: 'contato@xenonmotel.com.br',
+        siteUrl: 'https://xenonmotel.com.br',
+        siteLogo: 'https://xenonmotel.com.br/logo.png'
+    },
+    
+    // ============================================
+    // VERSÃO 4: Gastronomia no Motel
+    // ============================================
+    {
+        h1Title: 'Gastronomia de Qualidade: O Cardápio Exclusivo do Motel Xenon',
+        slug: 'gastronomia-cardapio-motel-xenon-criciuma',
+        category: 'Gastronomia',
+        author: 'Equipe Xenon',
+        authorAvatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200',
+        readTime: '5',
+        primaryKeyword: 'cardápio motel Criciúma',
+        secondaryKeywords: 'comida motel, jantar romântico, gastronomia, vinhos, petiscos gourmet',
+        metaTitle: 'Cardápio Gourmet do Motel Xenon | Gastronomia Premium',
+        metaDescription: 'Conheça o cardápio exclusivo do Motel Xenon: vinhos selecionados, petiscos gourmet, jantares românticos e muito mais. Sabores que complementam sua experiência.',
+        searchIntent: 'Informacional',
+        coverImage: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200',
+        coverImageAlt: 'Mesa com taças de vinho e petiscos gourmet em ambiente elegante',
+        coverImageCaption: 'Gastronomia premium para momentos especiais',
+        introduction: 'Uma experiência completa no motel vai além de suítes luxuosas. No Motel Xenon, nossa gastronomia é um diferencial que complementa sua visita com sabores únicos. De vinhos selecionados a petiscos gourmet, cada item do nosso cardápio foi pensado para tornar seu momento ainda mais especial.',
+        contentBody: '<h2>Nossa Carta de Vinhos</h2><p>Selecionamos os melhores rótulos nacionais e importados para compor nossa adega. De tintos encorpados a brancos refrescantes, temos a opção perfeita para cada ocasião.</p><h3>Destaques da Adega</h3><ul><li>Vinhos chilenos e argentinos</li><li>Espumantes brasileiros premiados</li><li>Champagnes para ocasiões especiais</li><li>Vinhos rosés refrescantes</li></ul><h2>Petiscos e Pratos</h2><p>Nosso cardápio oferece desde petiscos rápidos até refeições completas. Tudo preparado com ingredientes frescos e servido com apresentação impecável.</p><h3>Favoritos dos Clientes</h3><ul><li>Tábua de frios gourmet</li><li>Bruschetta de tomate e manjericão</li><li>Carpaccio bovino</li><li>Fondue de chocolate para dois</li></ul><h2>Café da Manhã Especial</h2><p>Para quem escolhe o pernoite, oferecemos um café da manhã completo com frutas frescas, pães artesanais, sucos naturais e muito mais.</p>',
+        conclusion: 'No Motel Xenon, gastronomia é parte da experiência. Cada prato, cada taça de vinho foi pensado para complementar seu momento especial. Visite-nos e descubra sabores que transformam uma visita comum em uma experiência memorável.',
+        tags: 'gastronomia motel, cardápio gourmet, vinhos, petiscos, jantar romântico, Motel Xenon',
+        relatedPosts: '/blog/noite-romantica-xenon, /blog/suites-premium-xenon',
+        formTitle: 'Quer Conhecer Nosso Cardápio?',
+        formDescription: 'Deixe seus dados e enviaremos nosso cardápio completo com fotos e preços atualizados.',
+        formButtonText: 'Receber Cardápio',
+        formWebhookUrl: '',
+        formDestinationEmail: 'contato@xenonmotel.com.br',
+        siteUrl: 'https://xenonmotel.com.br',
+        siteLogo: 'https://xenonmotel.com.br/logo.png'
+    },
+    
+    // ============================================
+    // VERSÃO 5: Por que Escolher Pernoite
+    // ============================================
+    {
+        h1Title: 'Por que o Pernoite é a Melhor Opção para Casais',
+        slug: 'pernoite-melhor-opcao-casais-motel-xenon',
+        category: 'Experiências',
+        author: 'Equipe Xenon',
+        authorAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200',
+        readTime: '6',
+        primaryKeyword: 'pernoite motel Criciúma',
+        secondaryKeywords: 'motel pernoite, dormir no motel, noite inteira, casal pernoite, hospedagem motel',
+        metaTitle: 'Pernoite em Motel: Vantagens e Dicas | Motel Xenon',
+        metaDescription: 'Descubra por que o pernoite no Motel Xenon é a escolha ideal para casais. Mais tempo, mais conforto, café da manhã incluso. Conheça as vantagens!',
+        searchIntent: 'Informacional',
+        coverImage: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1200',
+        coverImageAlt: 'Quarto de motel luxuoso com cama king size e iluminação suave',
+        coverImageCaption: 'Suítes confortáveis para uma noite completa de descanso',
+        introduction: 'Quando o assunto é aproveitar cada momento com quem você ama, o pernoite é a opção que oferece a melhor experiência. No Motel Xenon, o pernoite vai muito além de apenas dormir - é uma experiência completa que inclui jantar, café da manhã e horas de privacidade e conforto.',
+        contentBody: '<h2>Vantagens do Pernoite</h2><p>Diferente do período curto, o pernoite permite que você e seu par aproveitem sem pressa. São mais de 12 horas de exclusividade em uma suíte de luxo, tempo suficiente para relaxar, conversar e criar memórias.</p><h3>O Que Está Incluído</h3><ul><li>Entrada a partir das 20h</li><li>Saída até às 12h do dia seguinte</li><li>Café da manhã completo</li><li>Acesso a todas as comodidades da suíte</li><li>Estacionamento privativo</li></ul><h2>Custo-Benefício</h2><p>Quando você compara o valor do pernoite com duas ou três horas de período, percebe que o investimento é muito mais vantajoso. Você paga um pouco mais e ganha muito mais tempo e benefícios.</p><h3>Comparativo</h3><ul><li>Período 2h: tempo limitado, sem refeições</li><li>Período 4h: um pouco mais relaxado, ainda sem café</li><li>Pernoite: 12h+ de exclusividade, café da manhã incluso</li></ul><h2>Dicas para Aproveitar o Pernoite</h2><p>Para aproveitar ao máximo, leve roupas confortáveis, chegue cedo para jantar e não tenha pressa de dormir. Use a hidromassagem, peça algo do cardápio e relaxe completamente.</p>',
+        conclusion: 'O pernoite no Motel Xenon é a experiência completa que todo casal merece. Mais tempo juntos, mais conforto e a tranquilidade de acordar sem pressa. Reserve seu pernoite e descubra uma nova forma de aproveitar momentos a dois.',
+        tags: 'pernoite motel, noite inteira, hospedagem casal, motel Criciúma, café da manhã, Motel Xenon',
+        relatedPosts: '/blog/suites-hidromassagem, /blog/gastronomia-xenon',
+        formTitle: 'Reserve Seu Pernoite!',
+        formDescription: 'Deixe seus dados e receba informações sobre valores e disponibilidade para pernoite.',
+        formButtonText: 'Quero Reservar',
+        formWebhookUrl: '',
+        formDestinationEmail: 'contato@xenonmotel.com.br',
+        siteUrl: 'https://xenonmotel.com.br',
+        siteLogo: 'https://xenonmotel.com.br/logo.png'
+    }
+];
+
 // Preenche formulário com dados fictícios para teste
 function fillTestData() {
     const now = new Date();
@@ -153,50 +319,15 @@ function fillTestData() {
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const dateTimeLocal = `${year}-${month}-${day}T${hours}:${minutes}`;
     
-    const testData = {
-        // BLOCO 1: Identidade do Post
-        h1Title: '5 Dicas para uma Noite Romântica Perfeita no Motel',
-        slug: '5-dicas-noite-romantica-perfeita-motel-xenon',
-        category: 'Dicas',
-        author: 'Equipe Xenon',
-        datePublished: dateTimeLocal,
-        authorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
-        readTime: '6',
-        
-        // BLOCO 2: SEO Essencial
-        primaryKeyword: 'noite romântica motel',
-        secondaryKeywords: 'motel Criciúma, suíte luxo, romance, experiência casal, Motel Xenon',
-        metaTitle: '5 Dicas para Noite Romântica Perfeita | Motel Xenon',
-        metaDescription: 'Descubra como criar uma noite romântica inesquecível no Motel Xenon. Dicas exclusivas, suítes de luxo e experiências únicas em Criciúma. Confira!',
-        searchIntent: 'Informacional',
-        
-        // BLOCO 3: Imagens
-        coverImage: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=1200',
-        coverImageAlt: 'Suíte romântica decorada com pétalas de rosas e iluminação ambiente',
-        coverImageCaption: 'Ambiente perfeito para momentos especiais a dois',
-        
-        // BLOCO 4: Conteúdo do Post
-        introduction: 'Uma noite romântica no motel pode ser muito mais do que você imagina. No Motel Xenon, em Criciúma, oferecemos não apenas suítes luxuosas, mas toda a atmosfera e os detalhes que transformam um encontro comum em uma experiência inesquecível. Neste artigo, compartilhamos 5 dicas essenciais para você e seu par aproveitarem ao máximo sua visita e criarem memórias especiais que durarão para sempre.',
-        
-        contentBody: '<h2>1. Escolha a Suíte Ideal para o Momento</h2><p>O Motel Xenon oferece diferentes tipos de suítes, cada uma com seu charme único. Para uma noite romântica especial, nossas suítes premium contam com hidromassagem privativa, iluminação LED personalizável e decoração sofisticada que cria o ambiente perfeito.</p><h3>O Que Considerar na Escolha</h3><ul><li>Hidromassagem para relaxamento a dois</li><li>Sistema de som ambiente</li><li>Iluminação ajustável para criar o clima perfeito</li><li>Cama king size com roupa de cama premium</li><li>Ar-condicionado e aquecimento para máximo conforto</li></ul><h2>2. Aproveite Nosso Cardápio Especial</h2><p>O Motel Xenon oferece um cardápio exclusivo com opções que vão desde petiscos deliciosos até jantares completos. Não deixe de experimentar nossa garrafa de vinho especial, perfeita para brindar momentos especiais.</p><h3>Destaques do Cardápio</h3><ul><li>Vinhos selecionados de nossa adega</li><li>Tábua de frios gourmet</li><li>Sobremesas artesanais</li><li>Espumantes para celebrações</li><li>Café da manhã incluso no pernoite</li></ul><h2>3. Reserve com Antecedência</h2><p>Para garantir a suíte dos seus sonhos, especialmente em finais de semana e datas especiais, recomendamos fazer sua reserva com antecedência. Nossa equipe está disponível 24 horas para atendê-lo.</p><h2>4. Planeje Surpresas Especiais</h2><p>O Motel Xenon pode ajudar você a preparar surpresas inesquecíveis. Entre em contato previamente e nossa equipe terá prazer em organizar decorações especiais, pétalas de rosas, balões e outros detalhes que farão toda a diferença.</p><h2>5. Relaxe e Aproveite a Privacidade</h2><p>No Motel Xenon, sua privacidade e conforto são nossa prioridade. Todas as nossas suítes são projetadas para oferecer total discrição, garagem privativa e um ambiente onde você pode relaxar completamente e aproveitar cada momento a dois.</p>',
-        
-        conclusion: 'Uma noite romântica no Motel Xenon é mais do que hospedagem - é uma experiência completa. Com nossas suítes de luxo, atendimento impecável e localização privilegiada na BR-101 em Criciúma, garantimos que cada momento seja especial. Reserve agora sua suíte e descubra por que somos o melhor motel da região. Sua noite perfeita está a apenas uma reserva de distância!',
-        
-        // BLOCO 6: Tags e Organização
-        tags: 'motel Criciúma, noite romântica, suíte luxo, experiência casal, romance, Motel Xenon',
-        relatedPosts: '/blog/suites-premium-xenon, /blog/gastronomia-especial-motel, /blog/pernoite-casal-criciuma',
-        
-        // BLOCO 7: Formulário de Captura
-        formTitle: 'Quer Viver Esta Experiência?',
-        formDescription: 'Deixe seus dados e nossa equipe entrará em contato para ajudá-lo a planejar sua noite perfeita no Motel Xenon. Atendimento discreto e personalizado!',
-        formButtonText: 'Quero Reservar',
-        formWebhookUrl: '',
-        formDestinationEmail: 'contato@xenonmotel.com.br',
-        
-        // BLOCO 8: Configurações
-        siteUrl: 'https://xenonmotel.com.br',
-        siteLogo: 'https://xenonmotel.com.br/logo.png'
-    };
+    // Seleciona a versão atual e incrementa o índice para a próxima
+    const testData = { ...testDataVersions[testDataIndex], datePublished: dateTimeLocal };
+    const versionNumber = testDataIndex + 1;
+    
+    // Incrementa o índice para próxima versão (volta ao início se passar de 5)
+    testDataIndex = (testDataIndex + 1) % testDataVersions.length;
+    
+    // Mostra qual versão está sendo usada
+    console.log(`🧪 Preenchendo com versão ${versionNumber}/5: "${testData.h1Title}"`);
     
     // Preenche os campos
     Object.keys(testData).forEach(key => {
@@ -301,18 +432,19 @@ function fillTestData() {
     // Salva os dados no localStorage
     saveFormToLocalStorage();
     
-    // Feedback visual
+    // Feedback visual mostrando qual versão foi usada
     const statusDiv = document.getElementById('autoSaveStatus');
     if (statusDiv) {
-        statusDiv.textContent = '🧪 ✅ Formulário completo com dados de teste!';
+        statusDiv.innerHTML = `🧪 ✅ Versão ${versionNumber}/5: <strong>${testData.h1Title.substring(0, 40)}...</strong>`;
         statusDiv.style.opacity = '1';
         statusDiv.style.color = '#27ae60';
         setTimeout(() => {
             statusDiv.style.opacity = '0';
-        }, 3000);
+        }, 4000);
     }
     
     console.log('✅ Formulário preenchido COMPLETAMENTE com dados de teste');
+    console.log(`   Próximo clique usará a versão ${(testDataIndex % testDataVersions.length) + 1}`);
 }
 
 // ======================
