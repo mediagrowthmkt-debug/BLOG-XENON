@@ -305,18 +305,31 @@ function initLeadCaptureForm() {
         const formContainer = leadForm.closest('.post-lead-form');
         const successMessage = formContainer.querySelector('.lead-form-success');
         
-        // Coleta dados do formulário
+        // Formata a data atual em formato brasileiro
+        const now = new Date();
+        const dataFormatada = now.toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        // Obtém o título da página (nome do post)
+        const pageTitle = document.querySelector('.post-title')?.textContent?.trim() || document.title;
+        
+        // Coleta dados do formulário no formato do webhook
         const formData = {
-            name: String(leadForm.querySelector('#leadName').value).trim(),
+            nome: String(leadForm.querySelector('#leadName').value).trim(),
             email: String(leadForm.querySelector('#leadEmail').value).trim(),
-            phone: String(leadForm.querySelector('#leadPhone').value).trim(),
-            source: window.location.pathname,
-            page_title: document.title,
-            timestamp: new Date().toISOString()
+            telefone: String(leadForm.querySelector('#leadPhone').value).trim(),
+            plataforma: 'blog',
+            fonte: pageTitle,
+            quando: dataFormatada
         };
         
         // Validação básica
-        if (!formData.name || !formData.email || !formData.phone) {
+        if (!formData.nome || !formData.email || !formData.telefone) {
             showFormMessage('Por favor, preencha todos os campos.', 'error');
             return;
         }
@@ -352,7 +365,7 @@ function initLeadCaptureForm() {
             if (window.gtag) {
                 gtag('event', 'lead_capture', {
                     'event_category': 'engagement',
-                    'event_label': document.title
+                    'event_label': pageTitle
                 });
             }
             
