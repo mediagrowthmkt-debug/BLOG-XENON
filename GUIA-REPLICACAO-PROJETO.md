@@ -175,7 +175,7 @@ O formulário está dividido em **8 blocos organizados**:
 |-------|-------------|-----------|
 | Introdução | ✅ | 100-150 palavras |
 | Conteúdo Principal | ✅ | Aceita HTML (h2, h3, p, ul, ol) |
-| Conclusão | ✅ | Resumo + CTA |
+| Conclusão | ✅ | Resumo final do post |
 
 **Toolbar de Edição:**
 - Botões: `H2` | `H3` | `Parágrafo` | `Lista` | `Negrito` | `Itálico`
@@ -194,14 +194,40 @@ O formulário está dividido em **8 blocos organizados**:
 | Tags | ✅ | 3-6, separadas por vírgula |
 | Posts Relacionados | ❌ | URLs separadas por vírgula |
 
-### 🚀 BLOCO 7: Engajamento (CTA)
+### 🚀 BLOCO 7: Formulário de Captura de Leads
 
 | Campo | Obrigatório | Descrição |
 |-------|-------------|-----------|
-| Título CTA | ✅ | Ex: "Precisa de ajuda?" |
-| Texto CTA | ✅ | Descrição do call-to-action |
-| Link CTA | ✅ | URL de destino |
-| Texto Botão | ✅ | Ex: "Solicitar Orçamento" |
+| Título do Formulário | ✅ | Ex: "Quer Viver Esta Experiência?" |
+| Descrição do Formulário | ✅ | Texto persuasivo para o visitante |
+| Texto do Botão | ✅ | Ex: "Quero Reservar" |
+| URL do Webhook | ❌ | Para integração com Zapier/Make |
+| E-mail de Destino | ❌ | E-mail que recebe os leads |
+
+#### 📤 Dados Enviados pelo Webhook
+
+Quando o visitante preenche o formulário no post, os seguintes dados são enviados:
+
+| Campo | Valor | Exemplo |
+|-------|-------|---------|
+| `nome` | Nome do lead | "João Silva" |
+| `email` | E-mail do lead | "joao@email.com" |
+| `telefone` | Telefone formatado | "(48) 99999-9999" |
+| `plataforma` | Origem fixa | "blog" |
+| `fonte` | Título do post | "5 Dicas para Noite Romântica" |
+| `quando` | Data/hora (BR) | "13/01/2026, 14:30" |
+
+**Exemplo de payload JSON:**
+```json
+{
+    "nome": "João Silva",
+    "email": "joao@email.com",
+    "telefone": "(48) 99999-9999",
+    "plataforma": "blog",
+    "fonte": "5 Dicas para uma Noite Romântica Inesquecível",
+    "quando": "13/01/2026, 14:30"
+}
+```
 
 ### ⚙️ BLOCO 8: Configurações
 
@@ -284,8 +310,10 @@ O botão agora preenche **TODOS** os campos obrigatórios automaticamente:
 **BLOCO 6 - Tags:**
 - Tags do post + Posts relacionados
 
-**BLOCO 7 - CTA:**
-- Título, Texto, Link e Botão do CTA
+**BLOCO 7 - Formulário de Captura:**
+- Título, Descrição, Texto do Botão
+- URL do Webhook (opcional)
+- E-mail de Destino
 
 **BLOCO 8 - Configurações:**
 - URL base, Logo, Checkboxes habilitados
@@ -368,10 +396,10 @@ Se você não configurar o token, o sistema continua funcionando com download ma
 ```javascript
 class GitHubBlogPublisher {
     constructor(config) {
-        this.owner = 'mediagrowthmkt-debug';  // Dono do repo
-        this.repo = 'grupo-amcc-blog';         // Nome do repo
-        this.token = token;                    // Token de acesso
-        this.branch = 'main';                  // Branch principal
+        this.owner = 'SEU-USUARIO';       // ⚠️ Alterar para seu usuário
+        this.repo = 'NOME-DO-SEU-REPO';   // ⚠️ Alterar para seu repo
+        this.token = token;                // Token de acesso
+        this.branch = 'main';              // Branch principal
     }
 
     // Métodos principais:
@@ -379,6 +407,11 @@ class GitHubBlogPublisher {
     async getFile(path)                // Verifica se existe
     async createFile(path, content)    // Cria novo arquivo
     async updateFile(path, content)    // Atualiza existente
+    
+    // ⚠️ IMPORTANTE: Alterar também getPublicUrl()
+    getPublicUrl(slug) {
+        return `https://SEU-DOMINIO.com.br/posts/${slug}.html`;
+    }
 }
 ```
 
@@ -790,8 +823,18 @@ Clicar: ✨ Gerar Post
 
 ---
 
-**Última atualização:** 9 de Janeiro de 2026  
-**Versão:** 3.0 (Publicação Automática + Template IA + Preencher Teste Completo)
+**Última atualização:** 13 de Janeiro de 2026  
+**Versão:** 4.0 (Formulário de Captura de Leads + Webhook)
+
+### Changelog v4.0:
+- ✅ **Formulário de captura de leads** substitui o CTA com link
+- ✅ **Campos do formulário:** Nome, E-mail, Telefone
+- ✅ **Integração com Webhook** (Zapier, Make, n8n, etc.)
+- ✅ **Dados enviados:** nome, email, telefone, plataforma, fonte, quando
+- ✅ **Máscara de telefone** automática (formato BR)
+- ✅ **Armazenamento local** de leads como backup
+- ✅ **Mensagem de sucesso** após envio
+- ✅ **Categorias atualizadas** para contexto de motel
 
 ### Changelog v3.0:
 - ✅ **Publicação automática no GitHub** via API Token
@@ -799,3 +842,91 @@ Clicar: ✨ Gerar Post
 - ✅ **Template para IA** com geração de prompts de imagens
 - ✅ **4 campos de imagem** no template (1 capa + 3 internas)
 - ✅ **Fix localStorage** que não sobrescreve o template atualizado
+
+---
+
+## 📞 FORMULÁRIO DE CAPTURA DE LEADS
+
+### O que é?
+
+No final de cada post publicado, há um **formulário de captura** que coleta dados dos visitantes interessados. Diferente do antigo CTA com link, agora os dados são enviados diretamente para seu webhook.
+
+### Campos Capturados
+
+| Campo | Tipo | Exemplo |
+|-------|------|---------|
+| Nome | texto | "Maria Silva" |
+| E-mail | email | "maria@email.com" |
+| Telefone | tel (mascarado) | "(48) 99999-9999" |
+
+### Dados Enviados para o Webhook
+
+```json
+{
+    "nome": "Maria Silva",
+    "email": "maria@email.com",
+    "telefone": "(48) 99999-9999",
+    "plataforma": "blog",
+    "fonte": "5 Dicas para uma Noite Romântica",
+    "quando": "13/01/2026, 15:30"
+}
+```
+
+| Campo | Descrição |
+|-------|-----------|
+| `nome` | Nome completo do lead |
+| `email` | E-mail do lead |
+| `telefone` | Telefone com máscara BR |
+| `plataforma` | Sempre "blog" (origem fixa) |
+| `fonte` | Título do post onde preencheu |
+| `quando` | Data/hora do cadastro (formato BR) |
+
+### Configuração do Webhook
+
+No formulário de criação de post (`postin.html`), preencha:
+
+1. **URL do Webhook:** URL do seu Zapier/Make/n8n
+2. **E-mail de Destino:** E-mail alternativo para receber leads
+
+### Integrações Sugeridas
+
+| Plataforma | Como usar |
+|------------|-----------|
+| **Zapier** | Catch Hook → Google Sheets / CRM |
+| **Make** | Webhook → Planilha / E-mail |
+| **n8n** | Webhook trigger → Ação |
+| **Google Sheets** | Via Zapier/Make |
+| **RD Station** | Webhook para integração API |
+| **Hubspot** | Webhook para formulário |
+
+### Backup Local
+
+Todos os leads também são salvos no `localStorage` do navegador do visitante como backup. Você pode acessar via console:
+
+```javascript
+JSON.parse(localStorage.getItem('xenon_leads'))
+```
+
+---
+
+## 🔄 ATUALIZANDO PARA V4.0
+
+Se você já tem uma versão anterior do blog, atualize estes arquivos:
+
+### 1. postin.html
+- BLOCO 7 agora tem campos do formulário (não mais CTA)
+
+### 2. templates/post-template.html
+- Novo HTML do formulário de captura
+
+### 3. assets/js/blog-post.js
+- Nova função `initLeadCaptureForm()`
+- Envio para webhook com campos corretos
+
+### 4. assets/js/form-script.js
+- Novos campos: `formTitle`, `formDescription`, `formButtonText`
+- Removidos: `ctaTitle`, `ctaText`, `ctaLink`, `ctaButtonText`
+
+### 5. assets/css/blog-post.css
+- Novos estilos para `.post-lead-form`
+- Removidos estilos de `.post-cta`
