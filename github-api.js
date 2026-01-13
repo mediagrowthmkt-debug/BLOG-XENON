@@ -1,12 +1,12 @@
 /**
  * GitHub API Integration
- * Grupo AMCC Blog - Salva posts automaticamente no repositório via API
+ * Motel Xenon Blog - Salva posts automaticamente no repositório via API
  */
 
 class GitHubBlogPublisher {
     constructor(config) {
         this.owner = config.owner; // mediagrowthmkt-debug
-        this.repo = config.repo;   // grupo-amcc-blog
+        this.repo = config.repo;   // BLOG-XENON
         this.token = config.token; // Personal Access Token
         this.branch = config.branch || 'main';
     }
@@ -127,8 +127,8 @@ class GitHubBlogPublisher {
      * Obter URL pública do post
      */
     getPublicUrl(slug) {
-        // GitHub Pages URL
-        return `https://mediagrowthmkt-debug.github.io/grupo-amcc-blog/posts/${slug}.html`;
+        // GitHub Pages URL - Domínio personalizado do Motel Xenon Blog
+        return `https://blogs.xenonmotel.com.br/posts/${slug}.html`;
     }
 }
 
@@ -150,7 +150,7 @@ function initGitHubPublisher() {
     
     return new GitHubBlogPublisher({
         owner: 'mediagrowthmkt-debug',
-        repo: 'grupo-amcc-blog',
+        repo: 'BLOG-XENON',
         token: token,
         branch: 'main'
     });
