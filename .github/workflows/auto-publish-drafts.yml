@@ -1,0 +1,49 @@
+name: Auto-Publish from Drafts
+
+on:
+  push:
+    paths:
+      - 'drafts/*.html'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  move-to-posts:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Create posts directory
+        run: mkdir -p posts
+      
+      - name: Move drafts to posts
+        run: |
+          if [ -d "drafts" ] && [ "$(ls -A drafts/*.html 2>/dev/null)" ]; then
+            for file in drafts/*.html; do
+              filename=$(basename "$file")
+              echo "📄 Moving $filename to posts/"
+              mv "$file" "posts/$filename"
+            done
+          else
+            echo "ℹ️ No draft files to process"
+          fi
+      
+      - name: Commit and push
+        run: |
+          git config user.name "Blog Auto-Publisher"
+          git config user.email "bot@xenonmotel.com.br"
+          
+          if [ -n "$(git status --porcelain)" ]; then
+            git add posts/
+            git add drafts/
+            git commit -m "🚀 Auto-publish: Move drafts to posts"
+            git push
+            
+            echo "✅ Posts published successfully!"
+          else
+            echo "ℹ️ No changes to commit"
+          fi

@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Novo Post - Blog Motel Xenon</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="assets/css/form-style.css">
+    <script src="github-api.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <header class="form-header">
+            <h1>📝 Sistema de Criação de Posts</h1>
+            <p>Blog Motel Xenon - Preencha os campos abaixo para gerar um post otimizado para SEO</p>
+            <div class="header-buttons">
+                <button type="button" id="fillTestData" class="btn-test" title="Preencher com dados de teste">
+                    🧪 Preencher Teste
+                </button>
+                <button type="button" id="clearForm" class="btn-clear" title="Limpar todos os campos">
+                    🗑️ Limpar Campos
+                </button>
+                <button type="button" id="configGitHub" class="btn-config">⚙️ Configurar GitHub</button>
+            </div>
+            <div id="autoSaveStatus" class="auto-save-status"></div>
+        </header>
+
+        <form id="blogForm" class="blog-form">
+            
+            <!-- 🧱 BLOCO 1: IDENTIDADE DO POST -->
+            <section class="form-section">
+                <h2>🧱 BLOCO 1: Identidade do Post</h2>
+                
+                <div class="form-group required">
+                    <label for="h1Title">
+                        Título Principal (H1)
+                        <span class="tooltip">Máx. 60 caracteres com palavra-chave no início</span>
+                    </label>
+                    <input type="text" 
+                           id="h1Title" 
+                           name="h1Title" 
+                           maxlength="60" 
+                           required
+                           placeholder="Ex: Como Regularizar Sua Empresa em 5 Passos">
+                    <small class="char-counter">0/60 caracteres</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="slug">
+                        Slug / URL Amigável
+                        <span class="tooltip">Gerado automaticamente, mas pode editar</span>
+                    </label>
+                    <div class="input-with-prefix">
+                        <span class="prefix">/blog/</span>
+                        <input type="text" 
+                               id="slug" 
+                               name="slug" 
+                               placeholder="como-regularizar-sua-empresa">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group required">
+                        <label for="category">Categoria</label>
+                        <select id="category" name="category" required>
+                            <option value="">Selecione...</option>
+                            <option value="Guia">Guia</option>
+                            <option value="Tutorial">Tutorial</option>
+                            <option value="Blog">Blog</option>
+                            <option value="Dicas">Dicas</option>
+                            <option value="Novidades">Novidades</option>
+                            <option value="Contabilidade">Contabilidade</option>
+                            <option value="Impostos">Impostos</option>
+                            <option value="Gestão">Gestão</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group required">
+                        <label for="author">Autor</label>
+                        <input type="text" 
+                               id="author" 
+                               name="author" 
+                               required
+                               value="Equipe Xenon"
+                               placeholder="Nome do Autor">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="authorAvatar">Avatar do Autor (URL)</label>
+                    <input type="url" 
+                           id="authorAvatar" 
+                           name="authorAvatar" 
+                           placeholder="https://exemplo.com/avatar.jpg">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Data de Publicação</label>
+                        <input type="datetime-local" 
+                               id="datePublished" 
+                               name="datePublished">
+                        <small>Deixe em branco para usar data atual</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="readTime">Tempo de Leitura (minutos)</label>
+                        <input type="number" 
+                               id="readTime" 
+                               name="readTime" 
+                               min="1" 
+                               placeholder="5">
+                        <small>Calculado automaticamente se deixar em branco</small>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 🧠 BLOCO 2: SEO ESSENCIAL -->
+            <section class="form-section">
+                <h2>🧠 BLOCO 2: SEO Essencial</h2>
+                
+                <div class="form-group required">
+                    <label for="primaryKeyword">
+                        Palavra-chave Principal
+                        <span class="tooltip">Apenas 1 - Base do post inteiro</span>
+                    </label>
+                    <input type="text" 
+                           id="primaryKeyword" 
+                           name="primaryKeyword" 
+                           required
+                           placeholder="Ex: regularização de empresas">
+                </div>
+
+                <div class="form-group">
+                    <label for="secondaryKeywords">
+                        Palavras-chave Secundárias
+                        <span class="tooltip">3 a 5, separadas por vírgula</span>
+                    </label>
+                    <input type="text" 
+                           id="secondaryKeywords" 
+                           name="secondaryKeywords" 
+                           placeholder="contabilidade, CNPJ, impostos, assessoria contábil">
+                </div>
+
+                <div class="form-group required">
+                    <label for="metaTitle">
+                        Meta Title (SEO Title)
+                        <span class="tooltip">Até 60 caracteres - pode ser diferente do H1</span>
+                    </label>
+                    <input type="text" 
+                           id="metaTitle" 
+                           name="metaTitle" 
+                           maxlength="60" 
+                           required
+                           placeholder="Como Regularizar Sua Empresa: Guia Completo 2026">
+                    <small class="char-counter">0/60 caracteres</small>
+                </div>
+
+                <div class="form-group required">
+                    <label for="metaDescription">
+                        Meta Description
+                        <span class="tooltip">140-160 caracteres - texto persuasivo</span>
+                    </label>
+                    <textarea id="metaDescription" 
+                              name="metaDescription" 
+                              rows="3" 
+                              maxlength="160" 
+                              required
+                              placeholder="Aprenda como regularizar sua empresa de forma simples. Guia completo com passo a passo e dicas de especialistas contábeis. Confira!"></textarea>
+                    <small class="char-counter">0/160 caracteres</small>
+                </div>
+
+                <div class="form-group required">
+                    <label for="searchIntent">Intenção de Busca</label>
+                    <select id="searchIntent" name="searchIntent" required>
+                        <option value="">Selecione...</option>
+                        <option value="Informacional">Informacional</option>
+                        <option value="Comercial">Comercial</option>
+                        <option value="Navegacional">Navegacional</option>
+                        <option value="Transacional">Transacional</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- 🖼️ BLOCO 3: IMAGENS -->
+            <section class="form-section">
+                <h2>🖼️ BLOCO 3: Imagens</h2>
+                
+                <div class="form-group required">
+                    <label for="coverImage">
+                        URL da Imagem de Capa
+                        <span class="tooltip">1200x630px - Nome do arquivo com keyword</span>
+                    </label>
+                    <input type="url" 
+                           id="coverImage" 
+                           name="coverImage" 
+                           required
+                           placeholder="https://exemplo.com/regularizacao-empresa.jpg">
+                </div>
+
+                <div class="form-group required">
+                    <label for="coverImageAlt">
+                        Alt Text da Imagem Principal
+                        <span class="tooltip">Descritivo com palavra-chave</span>
+                    </label>
+                    <input type="text" 
+                           id="coverImageAlt" 
+                           name="coverImageAlt" 
+                           required
+                           placeholder="Documentos contábeis organizados sobre mesa de escritório">
+                </div>
+
+                <div class="form-group">
+                    <label for="coverImageCaption">Legenda da Imagem (opcional)</label>
+                    <input type="text" 
+                           id="coverImageCaption" 
+                           name="coverImageCaption" 
+                           placeholder="Processo de regularização empresarial">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Imagens Internas (mínimo 2)
+                        <span class="tooltip">Cada uma com URL e Alt Text</span>
+                    </label>
+                    <div id="internalImagesContainer">
+                        <div class="internal-image-item">
+                            <input type="url" 
+                                   name="internalImageUrl[]" 
+                                   placeholder="URL da imagem">
+                            <input type="text" 
+                                   name="internalImageAlt[]" 
+                                   placeholder="Alt text descritivo">
+                            <button type="button" class="btn-remove">✕</button>
+                        </div>
+                    </div>
+                    <button type="button" id="addInternalImage" class="btn-secondary">+ Adicionar Imagem</button>
+                </div>
+            </section>
+
+            <!-- ✍️ BLOCO 4: CONTEÚDO DO POST -->
+            <section class="form-section">
+                <h2>✍️ BLOCO 4: Conteúdo do Post</h2>
+                
+                <div class="form-group required">
+                    <label for="introduction">
+                        Introdução (100-150 palavras)
+                        <span class="tooltip">Palavra-chave no 1º parágrafo + promessa clara</span>
+                    </label>
+                    <textarea id="introduction" 
+                              name="introduction" 
+                              rows="5" 
+                              required
+                              placeholder="Escreva a introdução do post aqui..."></textarea>
+                    <small class="word-counter">0 palavras</small>
+                </div>
+
+                <div class="form-group required">
+                    <label for="contentBody">
+                        Conteúdo Principal
+                        <span class="tooltip">Use HTML: &lt;h2&gt;, &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;ol&gt;</span>
+                    </label>
+                    <div class="editor-toolbar">
+                        <button type="button" class="editor-btn" data-tag="h2">H2</button>
+                        <button type="button" class="editor-btn" data-tag="h3">H3</button>
+                        <button type="button" class="editor-btn" data-tag="p">Parágrafo</button>
+                        <button type="button" class="editor-btn" data-tag="ul">Lista</button>
+                        <button type="button" class="editor-btn" data-tag="strong">Negrito</button>
+                        <button type="button" class="editor-btn" data-tag="em">Itálico</button>
+                    </div>
+                    <textarea id="contentBody" 
+                              name="contentBody" 
+                              rows="20" 
+                              required
+                              placeholder="<h2>Seção Principal</h2>
+<p>Seu conteúdo aqui...</p>
+
+<h3>Subseção</h3>
+<ul>
+  <li>Item 1</li>
+  <li>Item 2</li>
+</ul>"></textarea>
+                    <small class="word-counter">0 palavras</small>
+                </div>
+
+                <div class="form-group required">
+                    <label for="conclusion">
+                        Conclusão
+                        <span class="tooltip">Resumo + CTA leve</span>
+                    </label>
+                    <textarea id="conclusion" 
+                              name="conclusion" 
+                              rows="4" 
+                              required
+                              placeholder="Escreva a conclusão do post..."></textarea>
+                    <small class="word-counter">0 palavras</small>
+                </div>
+            </section>
+
+            <!-- 🔗 BLOCO 5: LINKS -->
+            <section class="form-section">
+                <h2>🔗 BLOCO 5: Links (Rankeamento Real)</h2>
+                
+                <div class="form-group">
+                    <label>
+                        Links Internos (2-4 por post)
+                        <span class="tooltip">URL + Anchor Text otimizado</span>
+                    </label>
+                    <div id="internalLinksContainer">
+                        <div class="link-item">
+                            <input type="url" 
+                                   name="internalLinkUrl[]" 
+                                   placeholder="URL interna">
+                            <input type="text" 
+                                   name="internalLinkAnchor[]" 
+                                   placeholder="Texto âncora (não use 'clique aqui')">
+                            <button type="button" class="btn-remove">✕</button>
+                        </div>
+                    </div>
+                    <button type="button" id="addInternalLink" class="btn-secondary">+ Adicionar Link Interno</button>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Links Externos (1-2 sites confiáveis)
+                        <span class="tooltip">URL + Anchor Text</span>
+                    </label>
+                    <div id="externalLinksContainer">
+                        <div class="link-item">
+                            <input type="url" 
+                                   name="externalLinkUrl[]" 
+                                   placeholder="URL externa (site confiável)">
+                            <input type="text" 
+                                   name="externalLinkAnchor[]" 
+                                   placeholder="Texto âncora">
+                            <button type="button" class="btn-remove">✕</button>
+                        </div>
+                    </div>
+                    <button type="button" id="addExternalLink" class="btn-secondary">+ Adicionar Link Externo</button>
+                </div>
+            </section>
+
+            <!-- 🏷️ BLOCO 6: TAGS E ORGANIZAÇÃO -->
+            <section class="form-section">
+                <h2>🏷️ BLOCO 6: Tags e Organização</h2>
+                
+                <div class="form-group required">
+                    <label for="tags">
+                        Tags do Post
+                        <span class="tooltip">3 a 6 no máximo, separadas por vírgula</span>
+                    </label>
+                    <input type="text" 
+                           id="tags" 
+                           name="tags" 
+                           required
+                           placeholder="contabilidade, impostos, CNPJ, empresa, regularização">
+                </div>
+
+                <div class="form-group">
+                    <label for="relatedPosts">
+                        Posts Relacionados (URLs)
+                        <span class="tooltip">Separados por vírgula</span>
+                    </label>
+                    <input type="text" 
+                           id="relatedPosts" 
+                           name="relatedPosts" 
+                           placeholder="/blog/post-1, /blog/post-2, /blog/post-3">
+                </div>
+            </section>
+
+            <!-- 🚀 BLOCO 7: ENGAJAMENTO -->
+            <section class="form-section">
+                <h2>🚀 BLOCO 7: Engajamento (SEO Indireto)</h2>
+                
+                <div class="form-group required">
+                    <label for="ctaTitle">Título do CTA</label>
+                    <input type="text" 
+                           id="ctaTitle" 
+                           name="ctaTitle" 
+                           required
+                           placeholder="Precisa de Ajuda com Sua Contabilidade?">
+                </div>
+
+                <div class="form-group required">
+                    <label for="ctaText">Texto do CTA</label>
+                    <textarea id="ctaText" 
+                              name="ctaText" 
+                              rows="2" 
+                              required
+                              placeholder="Entre em contato com o Motel Xenon e receba uma consultoria gratuita para sua empresa."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group required">
+                        <label for="ctaLink">Link do CTA</label>
+                        <input type="url" 
+                               id="ctaLink" 
+                               name="ctaLink" 
+                               required
+                               placeholder="https://xenonmotel.com.br/contato">
+                    </div>
+
+                    <div class="form-group required">
+                        <label for="ctaButtonText">Texto do Botão</label>
+                        <input type="text" 
+                               id="ctaButtonText" 
+                               name="ctaButtonText" 
+                               required
+                               placeholder="Falar com Especialista">
+                    </div>
+                </div>
+            </section>
+
+            <!-- ⚙️ BLOCO 8: CONFIGURAÇÕES -->
+            <section class="form-section">
+                <h2>⚙️ BLOCO 8: Configurações Avançadas</h2>
+                
+                <div class="form-group required">
+                    <label for="siteUrl">URL Base do Site</label>
+                    <input type="url" 
+                           id="siteUrl" 
+                           name="siteUrl" 
+                           required
+                           value="https://xenonmotel.com.br"
+                           placeholder="https://seusite.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="siteLogo">URL do Logo (Schema)</label>
+                    <input type="url" 
+                           id="siteLogo" 
+                           name="siteLogo" 
+                           placeholder="https://xenonmotel.com.br/logo.png">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" 
+                               id="enableComments" 
+                               name="enableComments" 
+                               checked>
+                        Habilitar seção de comentários
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" 
+                               id="enableShare" 
+                               name="enableShare" 
+                               checked>
+                        Habilitar botões de compartilhamento
+                    </label>
+                </div>
+            </section>
+
+            <!-- 🤖 BLOCO 9: TEMPLATE PARA IA -->
+            <section class="form-section ai-section">
+                <h2>🤖 Assistente IA - Template Completo</h2>
+                
+                <div class="ai-instructions">
+                    <p><strong>💡 Como usar:</strong></p>
+                    <ol>
+                        <li>Preencha os campos <strong>[ENTRE COLCHETES]</strong> no template abaixo</li>
+                        <li>Clique em <strong>"📋 Copiar Template Completo"</strong></li>
+                        <li>Cole no ChatGPT, Claude ou outra IA para gerar o conteúdo</li>
+                        <li>A IA retornará todos os campos preenchidos</li>
+                        <li>Use os <strong>📸 COMANDOS DE IMAGEM</strong> para gerar imagens em DALL-E/Midjourney</li>
+                        <li>Copie as URLs das imagens geradas e cole no formulário</li>
+                    </ol>
+                </div>
+
+                <div class="form-group">
+                    <label for="aiTemplate">
+                        📋 Template Completo (preencha os [COLCHETES] e copie tudo) - v2.0
+                        <span class="tooltip">Substitua [VALORES] com suas informações antes de copiar</span>
+                    </label>
+                    <textarea id="aiTemplate" 
+                              name="aiTemplate" 
+                              rows="60">🎯 MISSÃO PRINCIPAL
+Crie um blog post altamente persuasivo, otimizado para SEO e focado em geração de leads para o Motel Xenon - Motel de Luxo, combinando técnicas avançadas de copywriting emocional, autoridade, prova social e otimização semântica.
+
+🎯 OBJETIVO ESTRATÉGICO
+• Atrair tráfego orgânico qualificado (intenção informacional + comercial)
+• Reter o leitor do início ao fim
+• Conduzir o leitor para a conversão (lead, contato, orçamento)
+
+🧠 DIRETRIZES DE COPYWRITING
+• Comece com uma headline magnética, curiosa e orientada à dor ou desejo
+• Introdução curta e poderosa, mostrando que você entende exatamente o problema do leitor
+• Use gatilhos mentais: Autoridade, Prova social, Urgência, Clareza, Especificidade
+• Linguagem clara, simples e persuasiva, sem enrolação
+• Escrita escaneável, com parágrafos curtos e subtítulos estratégicos
+
+🔍 DIRETRIZES AVANÇADAS DE SEO
+• Foco em SEO semântico e intenção de busca
+• Utilizar: Palavra-chave principal, LSI keywords, Termos relacionados e variações naturais
+• Estrutura técnica otimizada: Title SEO otimizado para CTR, Meta description persuasiva
+• Conteúdo profundo e relevante
+• Escrita orientada para E-E-A-T (Experiência, Especialização, Autoridade e Confiabilidade)
+
+================================================================================
+
+🧱 BLOCO 1: IDENTIDADE DO POST
+
+Título Principal (H1) [máx 60 caracteres]:
+
+Slug / URL Amigável:
+
+Categoria [Guia/Tutorial/Blog/Dicas/Novidades/Contabilidade/Impostos/Gestão]:
+
+Autor: Equipe Xenon
+
+================================================================================
+
+🧠 BLOCO 2: SEO ESSENCIAL
+
+Palavra-chave Principal:
+
+Palavras-chave Secundárias [3-5, separadas por vírgula]:
+
+Meta Title (SEO Title) [máx 60 caracteres]:
+
+Meta Description [140-160 caracteres]:
+
+Intenção de Busca [Informacional/Comercial/Navegacional/Transacional]:
+
+================================================================================
+
+🖼️ BLOCO 3: IMAGENS
+
+IMPORTANTE: Para cada URL de imagem abaixo, gere um prompt otimizado para DALL-E/Midjourney relacionado ao tema do post.
+
+URL da Imagem de Capa:
+[GERAR PROMPT para imagem de capa 1200x630px relacionada ao tema]
+
+Alt Text da Imagem Principal:
+
+
+URL da Imagem Interna 1:
+[GERAR PROMPT para imagem interna 800x600px relacionada ao tema]
+
+Alt Text da Imagem Interna 1:
+
+
+URL da Imagem Interna 2:
+[GERAR PROMPT para imagem interna 800x600px relacionada ao tema]
+
+Alt Text da Imagem Interna 2:
+
+
+URL da Imagem Interna 3:
+[GERAR PROMPT para imagem interna 800x600px relacionada ao tema]
+
+Alt Text da Imagem Interna 3:
+
+================================================================================
+
+✍️ BLOCO 4: CONTEÚDO DO POST
+
+Introdução [100-150 palavras]:
+
+
+Conteúdo Principal [use HTML: <h2>, <h3>, <p>, <ul>, <li>]:
+
+
+Conclusão:
+
+
+================================================================================
+
+🔗 BLOCO 5: LINKS
+
+Link Interno 1 - URL:
+Link Interno 1 - Texto Âncora:
+
+Link Externo 1 - URL:
+Link Externo 1 - Texto Âncora:
+
+================================================================================
+
+🏷️ BLOCO 6: TAGS E ORGANIZAÇÃO
+
+Tags do Post [3-6, separadas por vírgula]:
+
+================================================================================
+
+🚀 BLOCO 7: ENGAJAMENTO
+
+Título do CTA:
+
+Texto do CTA:
+
+Link do CTA: https://xenonmotel.com.br/contato
+
+Texto do Botão: Falar com Especialista
+
+================================================================================
+
+⚙️ BLOCO 8: CONFIGURAÇÕES
+
+URL Base do Site: https://xenonmotel.com.br</textarea>
+                </div>
+
+                <button type="button" id="copyTemplate" class="btn-ai">
+                    📋 Copiar Template Completo
+                </button>
+                <span class="copy-status" id="copyStatus"></span>
+            </section>
+
+            <!-- SUBMIT BUTTONS -->
+            <div class="form-actions">
+                <button type="button" id="previewBtn" class="btn-secondary">👁️ Pré-visualizar</button>
+                <button type="submit" class="btn-primary">✨ Gerar Post</button>
+            </div>
+        </form>
+
+        <!-- PREVIEW MODAL -->
+        <div id="previewModal" class="modal">
+            <div class="modal-content">
+                <span class="modal-close">&times;</span>
+                <h2>Pré-visualização do Post</h2>
+                <div id="previewContent"></div>
+            </div>
+        </div>
+
+        <!-- SUCCESS MODAL -->
+        <div id="successModal" class="modal">
+            <div class="modal-content success">
+                <h2>✅ Post Gerado com Sucesso!</h2>
+                <p>Seu post está pronto para ser baixado:</p>
+                <code id="postPath"></code>
+                <div class="modal-actions">
+                    <button id="openPost" class="btn-primary">🔗 Abrir Post</button>
+                    <button id="createAnother" class="btn-secondary">➕ Criar Outro Post</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- GITHUB CONFIG MODAL -->
+        <div id="githubModal" class="modal">
+            <div class="modal-content">
+                <span class="modal-close" id="closeGithubModal">&times;</span>
+                <h2>⚙️ Configurar GitHub API</h2>
+                <p>Para publicar posts automaticamente no GitHub Pages, você precisa de um <strong>Personal Access Token</strong>.</p>
+                
+                <div class="github-steps">
+                    <h3>📋 Como obter o token:</h3>
+                    <ol>
+                        <li>Acesse: <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a></li>
+                        <li>Clique em <strong>"Generate new token" → "Generate new token (classic)"</strong></li>
+                        <li>Nome: <code>blog-xenon</code></li>
+                        <li>Marque a permissão: <strong>✓ repo</strong> (full control of private repositories)</li>
+                        <li>Clique em <strong>"Generate token"</strong></li>
+                        <li>Copie o token (você só verá uma vez!)</li>
+                        <li>Cole abaixo:</li>
+                    </ol>
+                </div>
+
+                <div class="form-group">
+                    <label for="githubToken">
+                        GitHub Personal Access Token:
+                        <span class="tooltip">Será salvo localmente no seu navegador</span>
+                    </label>
+                    <input type="password" 
+                           id="githubToken" 
+                           placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                    <small>🔒 O token fica salvo apenas no seu navegador (localStorage)</small>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" id="saveToken" class="btn-primary">💾 Salvar Token</button>
+                    <button type="button" id="testToken" class="btn-secondary">🧪 Testar Conexão</button>
+                </div>
+
+                <div id="tokenStatus"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/form-script.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+name: Publish Blog Post
+
+on:
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: 'Post slug (URL-friendly name)'
+        required: true
+        type: string
+      content:
+        description: 'Post HTML content (base64 encoded)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Create posts directory
+        run: mkdir -p posts
+      
+      - name: Decode and save post
+        run: |
+          echo "${{ github.event.inputs.content }}" | base64 --decode > posts/${{ github.event.inputs.slug }}.html
+      
+      - name: Commit and push
+        run: |
+          git config user.name "Blog Publisher Bot"
+          git config user.email "bot@grupoamcc.com.br"
+          git add posts/${{ github.event.inputs.slug }}.html
+          git commit -m "Add blog post: ${{ github.event.inputs.slug }}"
+          git push
+      
+      - name: Display URL
+        run: |
+          echo "✅ Post published successfully!"
+          echo "URL: https://mediagrowthmkt-debug.github.io/grupo-amcc-blog/posts/${{ github.event.inputs.slug }}.html"

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO ESSENCIAL -->
+    <title>{{META_TITLE}}</title>
+    <meta name="description" content="{{META_DESCRIPTION}}">
+    <meta name="keywords" content="{{KEYWORDS}}">
+    <meta name="author" content="{{AUTHOR}}">
+    
+    <!-- CANONICAL -->
+    <link rel="canonical" href="{{CANONICAL_URL}}">
+    
+    <!-- OPEN GRAPH (Facebook, LinkedIn) -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="{{META_TITLE}}">
+    <meta property="og:description" content="{{META_DESCRIPTION}}">
+    <meta property="og:image" content="{{COVER_IMAGE_URL}}">
+    <meta property="og:url" content="{{CANONICAL_URL}}">
+    <meta property="og:site_name" content="Grupo AMCC - Assessoria Contábil">
+    <meta property="article:published_time" content="{{DATE_PUBLISHED}}">
+    <meta property="article:modified_time" content="{{DATE_MODIFIED}}">
+    <meta property="article:author" content="{{AUTHOR}}">
+    <meta property="article:section" content="{{CATEGORY}}">
+    <meta property="article:tag" content="{{TAGS}}">
+    
+    <!-- TWITTER CARD -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{META_TITLE}}">
+    <meta name="twitter:description" content="{{META_DESCRIPTION}}">
+    <meta name="twitter:image" content="{{COVER_IMAGE_URL}}">
+    
+    <!-- SCHEMA.ORG - ARTICLE -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "{{H1_TITLE}}",
+        "image": {
+            "@type": "ImageObject",
+            "url": "{{COVER_IMAGE_URL}}",
+            "width": 1200,
+            "height": 630
+        },
+        "author": {
+            "@type": "Person",
+            "name": "{{AUTHOR}}"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Grupo AMCC - Assessoria Contábil",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "{{SITE_LOGO_URL}}"
+            }
+        },
+        "datePublished": "{{DATE_PUBLISHED}}",
+        "dateModified": "{{DATE_MODIFIED}}",
+        "description": "{{META_DESCRIPTION}}",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "{{CANONICAL_URL}}"
+        },
+        "keywords": "{{KEYWORDS}}",
+        "articleSection": "{{CATEGORY}}",
+        "inLanguage": "pt-BR"
+    }
+    </script>
+    
+    <!-- BREADCRUMB SCHEMA -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "{{SITE_URL}}"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Blog",
+                "item": "{{SITE_URL}}/blog"
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "{{CATEGORY}}",
+                "item": "{{SITE_URL}}/blog/{{CATEGORY_SLUG}}"
+            },
+            {
+                "@type": "ListItem",
+                "position": 4,
+                "name": "{{H1_TITLE}}",
+                "item": "{{CANONICAL_URL}}"
+            }
+        ]
+    }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- STYLES -->
+    <link rel="stylesheet" href="../assets/css/blog-post.css">
+    
+    <!-- FAVICON -->
+    <link rel="icon" type="image/png" href="../assets/images/favicon.png">
+</head>
+<body>
+    <!-- NAVIGATION -->
+    <nav class="main-navigation" aria-label="Main Navigation">
+        <div class="nav-container">
+            <a href="{{SITE_URL}}" class="nav-logo">
+                <span>📊 GRUPO AMCC</span>
+            </a>
+            <a href="{{SITE_URL}}" class="nav-link">Home</a>
+            <a href="/posts" class="nav-link">Blog</a>
+            <a href="{{SITE_URL}}/contato" class="nav-link">Contato</a>
+        </div>
+    </nav>
+
+    <!-- ARTICLE CONTAINER -->
+    <article class="blog-post">
+        <!-- HEADER -->
+        <header class="post-header">
+            <!-- CATEGORY BADGE -->
+            <div class="post-meta-top">
+                <span class="category-badge">{{CATEGORY}}</span>
+                <span class="read-time">⏱️ {{READ_TIME}} min de leitura</span>
+            </div>
+            
+            <!-- H1 TITLE -->
+            <h1 class="post-title">{{H1_TITLE}}</h1>
+            
+            <!-- AUTHOR & DATE -->
+            <div class="post-meta">
+                <div class="author-info">
+                    <img src="{{AUTHOR_AVATAR}}" alt="{{AUTHOR}}" class="author-avatar">
+                    <div>
+                        <span class="author-name">{{AUTHOR}}</span>
+                        <time datetime="{{DATE_PUBLISHED}}" class="publish-date">{{DATE_PUBLISHED_FORMATTED}}</time>
+                    </div>
+                </div>
+                <div class="post-actions">
+                    <button class="share-btn" aria-label="Compartilhar">🔗 Compartilhar</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- COVER IMAGE -->
+        <figure class="post-cover">
+            <img src="{{COVER_IMAGE_URL}}" 
+                 alt="{{COVER_IMAGE_ALT}}" 
+                 width="1200" 
+                 height="630"
+                 loading="eager">
+            <figcaption>{{COVER_IMAGE_CAPTION}}</figcaption>
+        </figure>
+
+        <!-- INTRODUCTION -->
+        <div class="post-intro">
+            {{INTRODUCTION}}
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="post-content">
+            {{CONTENT_BODY}}
+        </div>
+
+        <!-- CONCLUSION -->
+        <div class="post-conclusion">
+            {{CONCLUSION}}
+        </div>
+
+        <!-- TAGS -->
+        <footer class="post-footer">
+            <div class="tags">
+                <strong>Tags:</strong>
+                {{TAGS_HTML}}
+            </div>
+            
+            <!-- CTA -->
+            <div class="post-cta">
+                <h3>{{CTA_TITLE}}</h3>
+                <p>{{CTA_TEXT}}</p>
+                <a href="{{CTA_LINK}}" class="cta-button">{{CTA_BUTTON_TEXT}}</a>
+            </div>
+        </footer>
+    </article>
+
+    <!-- RELATED POSTS -->
+    <aside class="related-posts">
+        <h2>Posts Relacionados</h2>
+        <div class="related-grid">
+            {{RELATED_POSTS_HTML}}
+        </div>
+    </aside>
+
+    <!-- BACK TO TOP -->
+    <button id="backToTop" class="back-to-top" aria-label="Voltar ao topo">↑</button>
+
+    <!-- SCRIPTS -->
+    <script src="../assets/js/blog-post.js"></script>
+</body>
+</html>

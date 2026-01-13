@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todos os Posts - Blog Motel Xenon</title>
+    <meta name="description" content="Confira todos os artigos publicados no blog do Motel Xenon.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+            color: #b7b7b7;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            text-shadow: 0 0 20px #ff3366;
+        }
+        .posts-list {
+            list-style: none;
+        }
+        .posts-list li {
+            background: linear-gradient(135deg, #1a1a1a 0%, #111111 100%);
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(217, 21, 24, 0.2);
+            transition: all 0.3s ease;
+        }
+        .posts-list li:hover {
+            border-color: #d91518;
+            box-shadow: 0 10px 30px rgba(217, 21, 24, 0.3);
+        }
+        .posts-list a {
+            display: block;
+            padding: 20px;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .posts-list a:hover {
+            color: #d91518;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            padding: 10px 20px;
+            background: #d91518;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .back-link:hover {
+            background: #ff1a1d;
+            box-shadow: 0 0 20px rgba(217, 21, 24, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-link">← Voltar para Home</a>
+        <h1>📰 Todos os Posts</h1>
+        <ul class="posts-list" id="postsList">
+            <li>Carregando posts...</li>
+        </ul>
+    </div>
+    <script>
+        async function loadAllPosts() {
+            const list = document.getElementById('postsList');
+            try {
+                const response = await fetch('https://api.github.com/repos/mediagrowthmkt-debug/BLOG-XENON/contents/posts');
+                const files = await response.json();
+                const htmlFiles = files.filter(f => f.name.endsWith('.html') && f.name !== 'index.html');
+                
+                if (htmlFiles.length === 0) {
+                    list.innerHTML = '<li style="text-align:center;padding:40px;">Nenhum post publicado ainda.</li>';
+                    return;
+                }
+                
+                list.innerHTML = htmlFiles.map(file => 
+                    `<li><a href="${file.name}">${file.name.replace('.html', '').replace(/-/g, ' ')}</a></li>`
+                ).join('');
+            } catch (error) {
+                list.innerHTML = '<li style="text-align:center;padding:40px;">Erro ao carregar posts.</li>';
+            }
+        }
+        loadAllPosts();
+    </script>
+</body>
+</html>
