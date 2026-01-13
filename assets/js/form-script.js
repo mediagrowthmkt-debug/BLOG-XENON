@@ -186,11 +186,12 @@ function fillTestData() {
         tags: 'motel Criciúma, noite romântica, suíte luxo, experiência casal, romance, Motel Xenon',
         relatedPosts: '/blog/suites-premium-xenon, /blog/gastronomia-especial-motel, /blog/pernoite-casal-criciuma',
         
-        // BLOCO 7: Engajamento
-        ctaTitle: 'Pronto para uma Noite Inesquecível?',
-        ctaText: 'Reserve agora sua suíte no Motel Xenon e garanta uma experiência romântica única em Criciúma. Atendimento 24h, suítes de luxo e todo o conforto que você merece.',
-        ctaLink: 'https://xenonmotel.com.br/#contato',
-        ctaButtonText: 'Reservar Agora',
+        // BLOCO 7: Formulário de Captura
+        formTitle: 'Quer Viver Esta Experiência?',
+        formDescription: 'Deixe seus dados e nossa equipe entrará em contato para ajudá-lo a planejar sua noite perfeita no Motel Xenon. Atendimento discreto e personalizado!',
+        formButtonText: 'Quero Reservar',
+        formWebhookUrl: '',
+        formDestinationEmail: 'contato@xenonmotel.com.br',
         
         // BLOCO 8: Configurações
         siteUrl: 'https://xenonmotel.com.br',
@@ -720,10 +721,16 @@ function generatePreviewHtml(data) {
                 ${data.tagsArray.map(tag => `<span class="tag">#${tag.trim()}</span>`).join(' ')}
             </div>
             
-            <div class="cta">
-                <h3>${data.ctaTitle}</h3>
-                <p>${data.ctaText}</p>
-                <a href="${data.ctaLink}" class="cta-btn">${data.ctaButtonText}</a>
+            <div class="lead-form-preview">
+                <h3>${data.formTitle}</h3>
+                <p>${data.formDescription}</p>
+                <div class="form-preview-fields">
+                    <input type="text" placeholder="Nome" disabled>
+                    <input type="email" placeholder="E-mail" disabled>
+                    <input type="tel" placeholder="Telefone" disabled>
+                    <button class="cta-btn" disabled>${data.formButtonText}</button>
+                </div>
+                <small>🔒 Formulário de captura de leads</small>
             </div>
         </div>
     `;
@@ -937,10 +944,11 @@ function collectFormData() {
         tags: tagsString,
         tagsArray: tagsArray,
         relatedPosts: formData.get('relatedPosts'),
-        ctaTitle: formData.get('ctaTitle'),
-        ctaText: formData.get('ctaText'),
-        ctaLink: formData.get('ctaLink'),
-        ctaButtonText: formData.get('ctaButtonText'),
+        formTitle: formData.get('formTitle'),
+        formDescription: formData.get('formDescription'),
+        formButtonText: formData.get('formButtonText'),
+        formWebhookUrl: formData.get('formWebhookUrl') || '',
+        formDestinationEmail: formData.get('formDestinationEmail') || 'contato@xenonmotel.com.br',
         siteUrl: siteUrl,
         siteLogo: formData.get('siteLogo') || `${siteUrl}/logo.png`,
         enableComments: formData.get('enableComments') === 'on',
@@ -1015,10 +1023,12 @@ async function generatePostHtml(data) {
         ).join(' ');
         template = template.replace(/{{TAGS_HTML}}/g, tagsHtml);
         
-        template = template.replace(/{{CTA_TITLE}}/g, escapeHtml(data.ctaTitle));
-        template = template.replace(/{{CTA_TEXT}}/g, escapeHtml(data.ctaText));
-        template = template.replace(/{{CTA_LINK}}/g, sanitizeUrl(data.ctaLink));
-        template = template.replace(/{{CTA_BUTTON_TEXT}}/g, escapeHtml(data.ctaButtonText));
+        // Formulário de Captura de Leads
+        template = template.replace(/{{FORM_TITLE}}/g, escapeHtml(data.formTitle));
+        template = template.replace(/{{FORM_DESCRIPTION}}/g, escapeHtml(data.formDescription));
+        template = template.replace(/{{FORM_BUTTON_TEXT}}/g, escapeHtml(data.formButtonText));
+        template = template.replace(/{{FORM_WEBHOOK_URL}}/g, sanitizeUrl(data.formWebhookUrl || ''));
+        template = template.replace(/{{FORM_DESTINATION_EMAIL}}/g, escapeHtml(data.formDestinationEmail || ''));
         
         template = template.replace(/{{RELATED_POSTS_HTML}}/g, '<!-- Posts relacionados serão adicionados automaticamente -->');
         

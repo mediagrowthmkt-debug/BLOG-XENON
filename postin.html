@@ -69,14 +69,14 @@
                         <label for="category">Categoria</label>
                         <select id="category" name="category" required>
                             <option value="">Selecione...</option>
-                            <option value="Guia">Guia</option>
-                            <option value="Tutorial">Tutorial</option>
-                            <option value="Blog">Blog</option>
                             <option value="Dicas">Dicas</option>
+                            <option value="Romance">Romance</option>
+                            <option value="Experiências">Experiências</option>
+                            <option value="Suítes">Suítes</option>
+                            <option value="Gastronomia">Gastronomia</option>
                             <option value="Novidades">Novidades</option>
-                            <option value="Contabilidade">Contabilidade</option>
-                            <option value="Impostos">Impostos</option>
-                            <option value="Gestão">Gestão</option>
+                            <option value="Relacionamento">Relacionamento</option>
+                            <option value="Criciúma">Criciúma</option>
                         </select>
                     </div>
 
@@ -373,46 +373,69 @@
                 </div>
             </section>
 
-            <!-- 🚀 BLOCO 7: ENGAJAMENTO -->
+            <!-- 🚀 BLOCO 7: FORMULÁRIO DE CAPTURA -->
             <section class="form-section">
-                <h2>🚀 BLOCO 7: Engajamento (SEO Indireto)</h2>
+                <h2>🚀 BLOCO 7: Formulário de Captura de Leads</h2>
+                <p class="section-description">Configure o formulário que aparecerá no final do post para capturar leads interessados.</p>
                 
                 <div class="form-group required">
-                    <label for="ctaTitle">Título do CTA</label>
+                    <label for="formTitle">
+                        Título do Formulário
+                        <span class="tooltip">Título atrativo relacionado ao conteúdo do post</span>
+                    </label>
                     <input type="text" 
-                           id="ctaTitle" 
-                           name="ctaTitle" 
+                           id="formTitle" 
+                           name="formTitle" 
                            required
-                           placeholder="Precisa de Ajuda com Sua Contabilidade?">
+                           placeholder="Ex: Quer uma Noite Inesquecível?">
                 </div>
 
                 <div class="form-group required">
-                    <label for="ctaText">Texto do CTA</label>
-                    <textarea id="ctaText" 
-                              name="ctaText" 
-                              rows="2" 
+                    <label for="formDescription">
+                        Descrição do Formulário
+                        <span class="tooltip">Texto persuasivo que incentive o visitante a preencher</span>
+                    </label>
+                    <textarea id="formDescription" 
+                              name="formDescription" 
+                              rows="3" 
                               required
-                              placeholder="Entre em contato com o Motel Xenon e receba uma consultoria gratuita para sua empresa."></textarea>
+                              placeholder="Deixe seus dados e nossa equipe entrará em contato para ajudá-lo a planejar sua experiência perfeita no Motel Xenon."></textarea>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group required">
-                        <label for="ctaLink">Link do CTA</label>
-                        <input type="url" 
-                               id="ctaLink" 
-                               name="ctaLink" 
-                               required
-                               placeholder="https://xenonmotel.com.br/contato">
-                    </div>
+                <div class="form-group required">
+                    <label for="formButtonText">
+                        Texto do Botão de Envio
+                        <span class="tooltip">Chamada para ação do botão</span>
+                    </label>
+                    <input type="text" 
+                           id="formButtonText" 
+                           name="formButtonText" 
+                           required
+                           placeholder="Quero Saber Mais">
+                </div>
 
-                    <div class="form-group required">
-                        <label for="ctaButtonText">Texto do Botão</label>
-                        <input type="text" 
-                               id="ctaButtonText" 
-                               name="ctaButtonText" 
-                               required
-                               placeholder="Falar com Especialista">
-                    </div>
+                <div class="form-group">
+                    <label for="formWebhookUrl">
+                        URL do Webhook (opcional)
+                        <span class="tooltip">Para integração com CRM, Zapier, Make, etc.</span>
+                    </label>
+                    <input type="url" 
+                           id="formWebhookUrl" 
+                           name="formWebhookUrl" 
+                           placeholder="https://hooks.zapier.com/...">
+                    <small>Deixe em branco para usar apenas o e-mail de destino</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="formDestinationEmail">
+                        E-mail de Destino
+                        <span class="tooltip">E-mail que receberá os leads capturados</span>
+                    </label>
+                    <input type="email" 
+                           id="formDestinationEmail" 
+                           name="formDestinationEmail" 
+                           value="contato@xenonmotel.com.br"
+                           placeholder="contato@xenonmotel.com.br">
                 </div>
             </section>
 

@@ -19,7 +19,7 @@
     <meta property="og:description" content="{{META_DESCRIPTION}}">
     <meta property="og:image" content="{{COVER_IMAGE_URL}}">
     <meta property="og:url" content="{{CANONICAL_URL}}">
-    <meta property="og:site_name" content="Grupo AMCC - Assessoria Contábil">
+    <meta property="og:site_name" content="Motel Xenon - Criciúma">
     <meta property="article:published_time" content="{{DATE_PUBLISHED}}">
     <meta property="article:modified_time" content="{{DATE_MODIFIED}}">
     <meta property="article:author" content="{{AUTHOR}}">
@@ -50,7 +50,7 @@
         },
         "publisher": {
             "@type": "Organization",
-            "name": "Grupo AMCC - Assessoria Contábil",
+            "name": "Motel Xenon - Criciúma",
             "logo": {
                 "@type": "ImageObject",
                 "url": "{{SITE_LOGO_URL}}"
@@ -119,11 +119,11 @@
     <nav class="main-navigation" aria-label="Main Navigation">
         <div class="nav-container">
             <a href="{{SITE_URL}}" class="nav-logo">
-                <span>📊 GRUPO AMCC</span>
+                <span>� MOTEL XENON</span>
             </a>
             <a href="{{SITE_URL}}" class="nav-link">Home</a>
             <a href="/posts" class="nav-link">Blog</a>
-            <a href="{{SITE_URL}}/contato" class="nav-link">Contato</a>
+            <a href="{{SITE_URL}}/#contato" class="nav-link">Contato</a>
         </div>
     </nav>
 
@@ -187,11 +187,33 @@
                 {{TAGS_HTML}}
             </div>
             
-            <!-- CTA -->
-            <div class="post-cta">
-                <h3>{{CTA_TITLE}}</h3>
-                <p>{{CTA_TEXT}}</p>
-                <a href="{{CTA_LINK}}" class="cta-button">{{CTA_BUTTON_TEXT}}</a>
+            <!-- FORMULÁRIO DE CAPTURA DE LEADS -->
+            <div class="post-lead-form">
+                <div class="lead-form-header">
+                    <h3>{{FORM_TITLE}}</h3>
+                    <p>{{FORM_DESCRIPTION}}</p>
+                </div>
+                <form class="lead-capture-form" id="leadCaptureForm" data-webhook="{{FORM_WEBHOOK_URL}}" data-email="{{FORM_DESTINATION_EMAIL}}">
+                    <div class="form-field">
+                        <label for="leadName">Nome</label>
+                        <input type="text" id="leadName" name="name" placeholder="Seu nome completo" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="leadEmail">E-mail</label>
+                        <input type="email" id="leadEmail" name="email" placeholder="seu@email.com" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="leadPhone">Telefone / WhatsApp</label>
+                        <input type="tel" id="leadPhone" name="phone" placeholder="(48) 99999-9999" required>
+                    </div>
+                    <button type="submit" class="lead-submit-btn">{{FORM_BUTTON_TEXT}}</button>
+                    <p class="form-privacy">🔒 Seus dados estão seguros. Não compartilhamos com terceiros.</p>
+                </form>
+                <div class="lead-form-success" style="display: none;">
+                    <div class="success-icon">✅</div>
+                    <h4>Obrigado pelo interesse!</h4>
+                    <p>Em breve nossa equipe entrará em contato.</p>
+                </div>
             </div>
         </footer>
     </article>

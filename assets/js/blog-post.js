@@ -1,5 +1,5 @@
 // Blog Post - Funcionalidades Interativas
-// Grupo AMCC - Assessoria Contábil
+// Motel Xenon - Criciúma/SC
 
 document.addEventListener('DOMContentLoaded', function() {
     // Back to Top Button
@@ -289,3 +289,163 @@ animationStyles.textContent = `
     }
 `;
 document.head.appendChild(animationStyles);
+
+// ======================
+// LEAD CAPTURE FORM
+// ======================
+function initLeadCaptureForm() {
+    const leadForm = document.getElementById('leadCaptureForm');
+    
+    if (!leadForm) return;
+    
+    leadForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const submitBtn = leadForm.querySelector('.lead-submit-btn');
+        const formContainer = leadForm.closest('.post-lead-form');
+        const successMessage = formContainer.querySelector('.lead-form-success');
+        
+        // Coleta dados do formulário
+        const formData = {
+            name: String(leadForm.querySelector('#leadName').value).trim(),
+            email: String(leadForm.querySelector('#leadEmail').value).trim(),
+            phone: String(leadForm.querySelector('#leadPhone').value).trim(),
+            source: window.location.pathname,
+            page_title: document.title,
+            timestamp: new Date().toISOString()
+        };
+        
+        // Validação básica
+        if (!formData.name || !formData.email || !formData.phone) {
+            showFormMessage('Por favor, preencha todos os campos.', 'error');
+            return;
+        }
+        
+        // Validação de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            showFormMessage('Por favor, insira um e-mail válido.', 'error');
+            return;
+        }
+        
+        // Estado de loading
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+        
+        try {
+            const webhookUrl = leadForm.dataset.webhook;
+            const destinationEmail = leadForm.dataset.email;
+            
+            // Se houver webhook configurado, envia para lá
+            if (webhookUrl && webhookUrl.trim() !== '') {
+                await sendToWebhook(webhookUrl, formData);
+            }
+            
+            // Armazena lead localmente também (backup)
+            storeLeadLocally(formData);
+            
+            // Mostra mensagem de sucesso
+            leadForm.style.display = 'none';
+            successMessage.style.display = 'block';
+            
+            // Dispara evento para analytics
+            if (window.gtag) {
+                gtag('event', 'lead_capture', {
+                    'event_category': 'engagement',
+                    'event_label': document.title
+                });
+            }
+            
+        } catch (error) {
+            console.error('Erro ao enviar lead:', error);
+            showFormMessage('Ocorreu um erro. Por favor, tente novamente.', 'error');
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+        }
+    });
+    
+    // Máscara de telefone
+    const phoneInput = leadForm.querySelector('#leadPhone');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.length > 11) value = value.slice(0, 11);
+            
+            if (value.length > 6) {
+                value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+            } else if (value.length > 2) {
+                value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+            } else if (value.length > 0) {
+                value = `(${value}`;
+            }
+            
+            e.target.value = value;
+        });
+    }
+}
+
+async function sendToWebhook(webhookUrl, data) {
+    // Valida URL do webhook
+    try {
+        const url = new URL(webhookUrl);
+        if (!['http:', 'https:'].includes(url.protocol)) {
+            throw new Error('Protocolo não permitido');
+        }
+    } catch (e) {
+        console.warn('Webhook URL inválida');
+        return;
+    }
+    
+    const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data),
+        mode: 'cors'
+    });
+    
+    if (!response.ok) {
+        throw new Error('Falha ao enviar para webhook');
+    }
+    
+    return response;
+}
+
+function storeLeadLocally(data) {
+    try {
+        const leads = JSON.parse(localStorage.getItem('xenon_leads') || '[]');
+        leads.push(data);
+        localStorage.setItem('xenon_leads', JSON.stringify(leads));
+    } catch (e) {
+        console.warn('Erro ao armazenar lead localmente:', e);
+    }
+}
+
+function showFormMessage(message, type) {
+    const existingMsg = document.querySelector('.form-message');
+    if (existingMsg) existingMsg.remove();
+    
+    const msgElement = document.createElement('div');
+    msgElement.className = `form-message form-message-${type}`;
+    msgElement.textContent = message;
+    msgElement.style.cssText = `
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        text-align: center;
+        font-weight: 500;
+        ${type === 'error' 
+            ? 'background: rgba(217, 21, 24, 0.2); color: #ff6b6b; border: 1px solid rgba(217, 21, 24, 0.5);' 
+            : 'background: rgba(63, 201, 155, 0.2); color: #3fc99b; border: 1px solid rgba(63, 201, 155, 0.5);'}
+    `;
+    
+    const leadForm = document.getElementById('leadCaptureForm');
+    leadForm.insertBefore(msgElement, leadForm.firstChild);
+    
+    setTimeout(() => msgElement.remove(), 5000);
+}
+
+// Inicializa o formulário de captura
+document.addEventListener('DOMContentLoaded', initLeadCaptureForm);

@@ -446,45 +446,146 @@ body {
     border-color: var(--primary-color);
 }
 
-/* CTA */
-.post-cta {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    color: var(--bg-color);
+/* FORMULÁRIO DE CAPTURA DE LEADS */
+.post-lead-form {
+    background: linear-gradient(135deg, var(--bg-color), #151515);
+    border: 2px solid var(--primary-color);
     padding: 40px;
     border-radius: var(--border-radius);
     text-align: center;
+    box-shadow: 0 10px 40px rgba(217, 21, 24, 0.15);
 }
 
-.post-cta h3 {
+.lead-form-header h3 {
     font-size: 2rem;
     margin-bottom: 15px;
-    color: var(--bg-color);
+    color: var(--secondary-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.post-cta p {
+.lead-form-header p {
     font-size: 1.1rem;
-    margin-bottom: 25px;
-    opacity: 0.95;
-}
-
-.cta-button {
-    display: inline-block;
-    padding: 15px 40px;
-    background: var(--bg-color);
-    color: var(--primary-color);
-    text-decoration: none;
-    border-radius: 30px;
-    font-weight: 600;
-    font-size: 1.1rem;
-    transition: var(--transition);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.cta-button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    background: var(--accent-gold);
+    margin-bottom: 30px;
     color: var(--text-color);
+    opacity: 0.9;
+}
+
+.lead-capture-form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.lead-capture-form .form-field {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.lead-capture-form .form-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+}
+
+.lead-capture-form .form-field input {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid rgba(217, 21, 24, 0.3);
+    border-radius: 8px;
+    font-size: 1rem;
+    background: var(--light-bg);
+    color: var(--secondary-color);
+    transition: var(--transition);
+}
+
+.lead-capture-form .form-field input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 15px rgba(217, 21, 24, 0.2);
+}
+
+.lead-capture-form .form-field input::placeholder {
+    color: var(--light-text);
+}
+
+.lead-submit-btn {
+    width: 100%;
+    padding: 18px 40px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: var(--secondary-color);
+    border: none;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 4px 15px rgba(217, 21, 24, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 10px;
+}
+
+.lead-submit-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(217, 21, 24, 0.4);
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+}
+
+.form-privacy {
+    margin-top: 20px;
+    font-size: 0.85rem;
+    color: var(--light-text);
+}
+
+/* Success State */
+.lead-form-success {
+    padding: 40px 20px;
+}
+
+.lead-form-success .success-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+
+.lead-form-success h4 {
+    font-size: 1.5rem;
+    color: #3fc99b;
+    margin-bottom: 10px;
+}
+
+.lead-form-success p {
+    color: var(--text-color);
+}
+
+/* Loading State */
+.lead-submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.lead-submit-btn.loading {
+    position: relative;
+    color: transparent;
+}
+
+.lead-submit-btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 50%;
+    left: 50%;
+    margin: -10px 0 0 -10px;
+    border: 3px solid transparent;
+    border-top-color: var(--secondary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
 /* RELATED POSTS */
@@ -593,14 +694,18 @@ body {
         grid-template-columns: 1fr;
     }
     
-    .post-cta {
+    .post-lead-form {
         padding: 30px 20px;
     }
     
-    .post-cta h3 {
+    .lead-form-header h3 {
         font-size: 1.5rem;
     }
     
+    .lead-capture-form {
+        max-width: 100%;
+    }
+
     .related-posts {
         padding: 0 20px;
     }
