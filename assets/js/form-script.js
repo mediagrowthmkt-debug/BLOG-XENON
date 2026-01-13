@@ -155,46 +155,46 @@ function fillTestData() {
     
     const testData = {
         // BLOCO 1: Identidade do Post
-        h1Title: 'Como Regularizar Sua Empresa: Guia Completo AMCC',
-        slug: 'como-regularizar-sua-empresa-guia-completo-amcc',
-        category: 'Guia',
-        author: 'Equipe AMCC',
+        h1Title: '5 Dicas para uma Noite Romântica Perfeita no Motel',
+        slug: '5-dicas-noite-romantica-perfeita-motel-xenon',
+        category: 'Dicas',
+        author: 'Equipe Xenon',
         datePublished: dateTimeLocal,
-        authorAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200',
-        readTime: '8',
+        authorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
+        readTime: '6',
         
         // BLOCO 2: SEO Essencial
-        primaryKeyword: 'regularização de empresas',
-        secondaryKeywords: 'contabilidade, CNPJ, impostos, assessoria contábil, Grupo AMCC',
-        metaTitle: 'Como Regularizar Sua Empresa: Guia Completo 2026',
-        metaDescription: 'Aprenda como regularizar sua empresa de forma simples. Guia completo com passo a passo e dicas de especialistas contábeis do Grupo AMCC. Confira!',
-        searchIntent: 'Comercial',
+        primaryKeyword: 'noite romântica motel',
+        secondaryKeywords: 'motel Criciúma, suíte luxo, romance, experiência casal, Motel Xenon',
+        metaTitle: '5 Dicas para Noite Romântica Perfeita | Motel Xenon',
+        metaDescription: 'Descubra como criar uma noite romântica inesquecível no Motel Xenon. Dicas exclusivas, suítes de luxo e experiências únicas em Criciúma. Confira!',
+        searchIntent: 'Informacional',
         
         // BLOCO 3: Imagens
-        coverImage: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200',
-        coverImageAlt: 'Documentos contábeis organizados sobre mesa de escritório',
-        coverImageCaption: 'Processo de regularização empresarial',
+        coverImage: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=1200',
+        coverImageAlt: 'Suíte romântica decorada com pétalas de rosas e iluminação ambiente',
+        coverImageCaption: 'Ambiente perfeito para momentos especiais a dois',
         
         // BLOCO 4: Conteúdo do Post
-        introduction: 'Regularizar sua empresa pode parecer uma tarefa complexa, mas com a orientação certa, o processo se torna simples e direto. Neste guia completo, a equipe do Grupo AMCC vai explicar passo a passo como colocar sua empresa em dia com todas as obrigações fiscais, contábeis e trabalhistas. Se você está iniciando um negócio ou possui uma empresa que precisa se regularizar, este é o guia perfeito para você.',
+        introduction: 'Uma noite romântica no motel pode ser muito mais do que você imagina. No Motel Xenon, em Criciúma, oferecemos não apenas suítes luxuosas, mas toda a atmosfera e os detalhes que transformam um encontro comum em uma experiência inesquecível. Neste artigo, compartilhamos 5 dicas essenciais para você e seu par aproveitarem ao máximo sua visita e criarem memórias especiais que durarão para sempre.',
         
-        contentBody: '<h2>Por Que Regularizar Sua Empresa?</h2><p>Manter sua empresa regularizada traz inúmeras vantagens, desde evitar multas até conseguir melhores condições de crédito no mercado. Empresas regulares também transmitem mais confiança para clientes e parceiros comerciais.</p><h3>Benefícios Principais da Regularização</h3><ul><li>Evita multas e penalidades do fisco</li><li>Melhora o acesso a crédito e financiamentos</li><li>Aumenta a credibilidade no mercado</li><li>Permite participar de licitações públicas</li><li>Facilita a contratação de colaboradores</li></ul><h2>Passo a Passo para Regularização</h2><p>O primeiro passo é fazer um diagnóstico completo da situação atual da sua empresa. Isso inclui verificar pendências fiscais, trabalhistas, previdenciárias e municipais. Com um relatório claro, você saberá exatamente o que precisa ser regularizado.</p><h3>Documentos Necessários para a Regularização</h3><ul><li>Contrato Social atualizado e registrado</li><li>CNPJ regular perante a Receita Federal</li><li>Alvará de funcionamento municipal</li><li>Certidões negativas federais, estaduais e municipais</li><li>Inscrição Estadual (se aplicável)</li><li>Comprovante de endereço comercial</li></ul><h2>Como o Grupo AMCC Pode Ajudar</h2><p>Nossa equipe de especialistas contábeis possui mais de 15 anos de experiência em regularização empresarial. Oferecemos uma análise completa e personalizada para cada cliente, garantindo conformidade total com a legislação.</p>',
+        contentBody: '<h2>1. Escolha a Suíte Ideal para o Momento</h2><p>O Motel Xenon oferece diferentes tipos de suítes, cada uma com seu charme único. Para uma noite romântica especial, nossas suítes premium contam com hidromassagem privativa, iluminação LED personalizável e decoração sofisticada que cria o ambiente perfeito.</p><h3>O Que Considerar na Escolha</h3><ul><li>Hidromassagem para relaxamento a dois</li><li>Sistema de som ambiente</li><li>Iluminação ajustável para criar o clima perfeito</li><li>Cama king size com roupa de cama premium</li><li>Ar-condicionado e aquecimento para máximo conforto</li></ul><h2>2. Aproveite Nosso Cardápio Especial</h2><p>O Motel Xenon oferece um cardápio exclusivo com opções que vão desde petiscos deliciosos até jantares completos. Não deixe de experimentar nossa garrafa de vinho especial, perfeita para brindar momentos especiais.</p><h3>Destaques do Cardápio</h3><ul><li>Vinhos selecionados de nossa adega</li><li>Tábua de frios gourmet</li><li>Sobremesas artesanais</li><li>Espumantes para celebrações</li><li>Café da manhã incluso no pernoite</li></ul><h2>3. Reserve com Antecedência</h2><p>Para garantir a suíte dos seus sonhos, especialmente em finais de semana e datas especiais, recomendamos fazer sua reserva com antecedência. Nossa equipe está disponível 24 horas para atendê-lo.</p><h2>4. Planeje Surpresas Especiais</h2><p>O Motel Xenon pode ajudar você a preparar surpresas inesquecíveis. Entre em contato previamente e nossa equipe terá prazer em organizar decorações especiais, pétalas de rosas, balões e outros detalhes que farão toda a diferença.</p><h2>5. Relaxe e Aproveite a Privacidade</h2><p>No Motel Xenon, sua privacidade e conforto são nossa prioridade. Todas as nossas suítes são projetadas para oferecer total discrição, garagem privativa e um ambiente onde você pode relaxar completamente e aproveitar cada momento a dois.</p>',
         
-        conclusion: 'Regularizar sua empresa é um investimento no futuro do seu negócio. Com a parceria do Grupo AMCC, você conta com profissionais especializados que vão orientar cada etapa do processo, garantindo que sua empresa esteja sempre em conformidade com a legislação vigente. Não deixe para depois - comece hoje mesmo sua jornada rumo a uma empresa regularizada e confiável!',
+        conclusion: 'Uma noite romântica no Motel Xenon é mais do que hospedagem - é uma experiência completa. Com nossas suítes de luxo, atendimento impecável e localização privilegiada na BR-101 em Criciúma, garantimos que cada momento seja especial. Reserve agora sua suíte e descubra por que somos o melhor motel da região. Sua noite perfeita está a apenas uma reserva de distância!',
         
         // BLOCO 6: Tags e Organização
-        tags: 'contabilidade, regularização, empresa, CNPJ, impostos, assessoria contábil',
-        relatedPosts: '/blog/como-abrir-empresa-no-brasil, /blog/dicas-contabeis-para-pmes, /blog/guia-fiscal-2026',
+        tags: 'motel Criciúma, noite romântica, suíte luxo, experiência casal, romance, Motel Xenon',
+        relatedPosts: '/blog/suites-premium-xenon, /blog/gastronomia-especial-motel, /blog/pernoite-casal-criciuma',
         
         // BLOCO 7: Engajamento
-        ctaTitle: 'Precisa de Ajuda para Regularizar Sua Empresa?',
-        ctaText: 'Entre em contato com o Grupo AMCC e receba uma consultoria gratuita sobre a situação da sua empresa. Nossa equipe está pronta para ajudar sua empresa a crescer de forma regular, segura e lucrativa.',
-        ctaLink: 'https://grupoamcc.com.br/contato',
-        ctaButtonText: 'Falar com Especialista',
+        ctaTitle: 'Pronto para uma Noite Inesquecível?',
+        ctaText: 'Reserve agora sua suíte no Motel Xenon e garanta uma experiência romântica única em Criciúma. Atendimento 24h, suítes de luxo e todo o conforto que você merece.',
+        ctaLink: 'https://xenonmotel.com.br/#contato',
+        ctaButtonText: 'Reservar Agora',
         
         // BLOCO 8: Configurações
-        siteUrl: 'https://grupoamcc.com.br',
-        siteLogo: 'https://grupoamcc.com.br/logo.png'
+        siteUrl: 'https://xenonmotel.com.br',
+        siteLogo: 'https://xenonmotel.com.br/logo.png'
     };
     
     // Preenche os campos
@@ -234,21 +234,21 @@ function fillTestData() {
     
     // Preenche a primeira imagem interna
     if (internalImageUrls[0]) {
-        internalImageUrls[0].value = 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800';
+        internalImageUrls[0].value = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800';
         internalImageUrls[0].dispatchEvent(new Event('input', { bubbles: true }));
     }
     if (internalImageAlts[0]) {
-        internalImageAlts[0].value = 'Consultor contábil analisando documentos fiscais com cliente';
+        internalImageAlts[0].value = 'Casal relaxando em banheira de hidromassagem com champagne';
         internalImageAlts[0].dispatchEvent(new Event('input', { bubbles: true }));
     }
     
     // Preenche a segunda imagem interna (se existir)
     if (internalImageUrls[1]) {
-        internalImageUrls[1].value = 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800';
+        internalImageUrls[1].value = 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800';
         internalImageUrls[1].dispatchEvent(new Event('input', { bubbles: true }));
     }
     if (internalImageAlts[1]) {
-        internalImageAlts[1].value = 'Gráfico de crescimento empresarial após regularização contábil';
+        internalImageAlts[1].value = 'Mesa decorada com velas e taças de vinho em ambiente romântico';
         internalImageAlts[1].dispatchEvent(new Event('input', { bubbles: true }));
     }
     
@@ -266,21 +266,21 @@ function fillTestData() {
     
     // Preenche o primeiro link interno
     if (internalLinkUrls[0]) {
-        internalLinkUrls[0].value = 'https://grupoamcc.com.br/blog/como-abrir-empresa-no-brasil';
+        internalLinkUrls[0].value = 'https://xenonmotel.com.br/#suites';
         internalLinkUrls[0].dispatchEvent(new Event('input', { bubbles: true }));
     }
     if (internalLinkAnchors[0]) {
-        internalLinkAnchors[0].value = 'como abrir empresa no Brasil';
+        internalLinkAnchors[0].value = 'nossas suítes de luxo';
         internalLinkAnchors[0].dispatchEvent(new Event('input', { bubbles: true }));
     }
     
     // Preenche o segundo link interno
     if (internalLinkUrls[1]) {
-        internalLinkUrls[1].value = 'https://grupoamcc.com.br/blog/dicas-contabeis-para-pmes';
+        internalLinkUrls[1].value = 'https://xenonmotel.com.br/#diferenciais';
         internalLinkUrls[1].dispatchEvent(new Event('input', { bubbles: true }));
     }
     if (internalLinkAnchors[1]) {
-        internalLinkAnchors[1].value = 'dicas contábeis para pequenas empresas';
+        internalLinkAnchors[1].value = 'diferenciais do Motel Xenon';
         internalLinkAnchors[1].dispatchEvent(new Event('input', { bubbles: true }));
     }
     
@@ -289,11 +289,11 @@ function fillTestData() {
     const externalLinkAnchors = form.querySelectorAll('[name="externalLinkAnchor[]"]');
     
     if (externalLinkUrls[0]) {
-        externalLinkUrls[0].value = 'https://www.receita.fazenda.gov.br/';
+        externalLinkUrls[0].value = 'https://www.tripadvisor.com.br/';
         externalLinkUrls[0].dispatchEvent(new Event('input', { bubbles: true }));
     }
     if (externalLinkAnchors[0]) {
-        externalLinkAnchors[0].value = 'portal da Receita Federal';
+        externalLinkAnchors[0].value = 'avaliações de clientes no TripAdvisor';
         externalLinkAnchors[0].dispatchEvent(new Event('input', { bubbles: true }));
     }
     
