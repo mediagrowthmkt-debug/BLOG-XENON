@@ -42,7 +42,7 @@ body {
 .container {
     max-width: 1000px;
     margin: 0 auto;
-    background: var(--white);
+    background: #111111;
     padding: 40px;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
@@ -63,7 +63,7 @@ body {
 }
 
 .form-header p {
-    color: var(--medium-gray);
+    color: #b7b7b7;
     font-size: 1.1rem;
     margin-bottom: 15px;
 }
@@ -161,14 +161,14 @@ body {
 
 .form-group.required label::after {
     content: ' *';
-    color: var(--danger-color);
+    color: var(--primary-color);
     font-weight: bold;
 }
 
 .form-group label {
     display: block;
     font-weight: 600;
-    color: var(--dark-gray);
+    color: #ffffff;
     margin-bottom: 8px;
     font-size: 0.95rem;
 }
@@ -176,7 +176,7 @@ body {
 .form-group .tooltip {
     display: inline-block;
     margin-left: 5px;
-    color: var(--medium-gray);
+    color: #f2b900;
     font-weight: normal;
     font-size: 0.85rem;
     font-style: italic;
@@ -221,13 +221,13 @@ textarea {
 }
 
 .input-with-prefix .prefix {
-    background: var(--light-gray);
+    background: #222222;
     padding: 12px 15px;
-    border: 2px solid #ddd;
+    border: 2px solid #444;
     border-right: none;
     border-radius: var(--border-radius) 0 0 var(--border-radius);
     font-weight: 600;
-    color: var(--medium-gray);
+    color: #ffffff;
 }
 
 .input-with-prefix input {
@@ -253,7 +253,7 @@ textarea {
     display: block;
     margin-top: 5px;
     font-size: 0.85rem;
-    color: var(--medium-gray);
+    color: #b7b7b7;
 }
 
 /* CHECKBOXES */
