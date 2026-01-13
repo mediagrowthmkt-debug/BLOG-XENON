@@ -1083,9 +1083,9 @@ function showSuccess(slug, result) {
         messageElement.className = 'success-message';
         messageElement.style.marginTop = '10px';
         messageElement.style.fontSize = '0.9em';
-        messageElement.style.color = '#666';
+        messageElement.style.color = '#ffffff';
         messageElement.style.padding = '10px';
-        messageElement.style.backgroundColor = '#f0f0f0';
+        messageElement.style.backgroundColor = '#1a1a1a';
         messageElement.style.borderRadius = '5px';
         messageElement.style.whiteSpace = 'pre-wrap';
         modal.querySelector('.modal-content').appendChild(messageElement);
@@ -1095,13 +1095,14 @@ function showSuccess(slug, result) {
         // Publicado com sucesso no GitHub
         messageElement.innerHTML = `
             <strong>🎉 Post publicado automaticamente no GitHub!</strong><br><br>
-            📁 Arquivo: <code>${postPath}</code><br>
-            🌐 URL pública: <a href="${result.publicUrl}" target="_blank" style="color: #007bff;">${result.publicUrl}</a><br><br>
+            📁 Arquivo: <code style="background:#0a0a0a;padding:4px 8px;border-radius:4px;color:#3fc99b;">${postPath}</code><br>
+            🌐 URL pública: <a href="${result.publicUrl}" target="_blank" style="color: #3fc99b;">${result.publicUrl}</a><br><br>
             ⏳ <em>Aguarde 1-2 minutos para o GitHub Pages processar o arquivo.</em>
         `;
-        messageElement.style.backgroundColor = '#d4edda';
-        messageElement.style.color = '#155724';
+        messageElement.style.backgroundColor = '#0d2818';
+        messageElement.style.color = '#ffffff';
         messageElement.style.fontWeight = 'normal';
+        messageElement.style.border = '1px solid #3fc99b';
         
         // Adicionar botão para abrir URL pública
         let openUrlBtn = document.getElementById('openPublicUrlBtn');
@@ -1126,9 +1127,10 @@ function showSuccess(slug, result) {
             ❌ Erro: ${result.error}<br><br>
             💡 Você pode fazer o download manual usando o botão abaixo.
         `;
-        messageElement.style.backgroundColor = '#fff3cd';
-        messageElement.style.color = '#856404';
+        messageElement.style.backgroundColor = '#2d1f00';
+        messageElement.style.color = '#f2b900';
         messageElement.style.fontWeight = 'normal';
+        messageElement.style.border = '1px solid #f2b900';
         
     } else {
         // Download manual (sem token configurado)
@@ -1138,9 +1140,10 @@ function showSuccess(slug, result) {
             📥 Use o botão abaixo para download manual.<br><br>
             💡 <strong>Dica:</strong> Configure o token em "⚙️ Configurar GitHub API" para publicação automática!
         `;
-        messageElement.style.backgroundColor = '#d4edda';
-        messageElement.style.color = '#155724';
+        messageElement.style.backgroundColor = '#0d2818';
+        messageElement.style.color = '#ffffff';
         messageElement.style.fontWeight = 'normal';
+        messageElement.style.border = '1px solid #3fc99b';
     }
     
     let downloadBtn = document.getElementById('downloadHtmlBtn');
