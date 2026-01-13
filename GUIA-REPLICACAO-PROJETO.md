@@ -305,7 +305,7 @@ O botão **alterna entre 5 versões diferentes** de conteúdo de teste a cada cl
 
 #### ⚠️ IMPORTANTE: Personalizar para seu Nicho
 
-**As 5 versões de teste estão configuradas para o nicho de MOTEL.** Ao replicar este projeto para outro nicho, você deve editar o array `testDataVersions` no arquivo `assets/js/form-script.js`:
+**As 5 versões de teste devem ser personalizadas para o nicho do seu cliente.** Ao usar este projeto, edite o array `testDataVersions` no arquivo `assets/js/form-script.js`:
 
 ```javascript
 // Localização: assets/js/form-script.js (linha ~150)
@@ -324,15 +324,15 @@ const testDataVersions = [
 ];
 ```
 
-#### Versões Atuais (Nicho: Motel)
+#### Estrutura das 5 Versões de Teste
 
-| # | Título | Categoria |
-|---|--------|-----------|
-| 1 | 5 Dicas para Noite Romântica Perfeita | Dicas |
-| 2 | Suítes com Hidromassagem | Suítes |
-| 3 | Como Comemorar Aniversário de Namoro | Romance |
-| 4 | Gastronomia: Cardápio Exclusivo | Gastronomia |
-| 5 | Por que o Pernoite é a Melhor Opção | Experiências |
+| # | O que incluir | Exemplo Genérico |
+|---|---------------|------------------|
+| 1 | Post introdutório/dicas | "5 Dicas para [Benefício do Nicho]" |
+| 2 | Post sobre produto/serviço principal | "[Produto/Serviço]: Guia Completo" |
+| 3 | Post sobre datas especiais/ocasiões | "Como [Ação] em [Ocasião Especial]" |
+| 4 | Post sobre diferencial/qualidade | "[Diferencial]: Por que Escolher [Empresa]" |
+| 5 | Post comparativo/benefícios | "Por que [Opção A] é Melhor que [Opção B]" |
 
 #### Campos Preenchidos em Cada Versão
 
@@ -400,7 +400,7 @@ Quando você configura o GitHub API Token, os posts são **publicados automatica
 1. Clique em **"⚙️ Configurar GitHub"** no formulário
 2. Acesse: `github.com/settings/tokens`
 3. Clique em **"Generate new token" → "Generate new token (classic)"**
-4. Nome: `grupo-amcc-blog` (ou o nome do seu blog)
+4. Nome: `blog-nome-do-projeto` (use o nome do seu blog)
 5. Marque a permissão: **✅ repo** (full control)
 6. Clique em **"Generate token"**
 7. Copie o token (você só verá uma vez!)
@@ -627,7 +627,7 @@ return new GitHubBlogPublisher({
 ```javascript
 // ANTES (errado - aponta para projeto anterior):
 getPublicUrl(slug) {
-    return `https://mediagrowthmkt-debug.github.io/grupo-amcc-blog/posts/${slug}.html`;
+    return `https://usuario.github.io/repo-antigo/posts/${slug}.html`;
 }
 
 // DEPOIS (correto - aponta para seu novo projeto):
@@ -639,14 +639,14 @@ getPublicUrl(slug) {
 ```javascript
 // ANTES (errado):
 return new GitHubBlogPublisher({
-    owner: 'mediagrowthmkt-debug',
-    repo: 'grupo-amcc-blog',  // ❌ Repositório antigo!
+    owner: 'seu-usuario',
+    repo: 'repo-antigo',  // ❌ Repositório antigo!
     ...
 });
 
 // DEPOIS (correto):
 return new GitHubBlogPublisher({
-    owner: 'mediagrowthmkt-debug',
+    owner: 'seu-usuario',
     repo: 'NOME-DO-SEU-NOVO-REPO',  // ✅ Seu novo repositório!
     ...
 });
@@ -679,11 +679,11 @@ const response = await fetch('https://api.github.com/repos/SEU-USER/SEU-REPO/con
 Execute estes comandos para encontrar referências ao projeto anterior:
 
 ```bash
-# Buscar nome do repo antigo
-grep -r "grupo-amcc-blog" --include="*.js" --include="*.html"
+# Buscar nome do repo antigo (substitua pelo nome do repo que você copiou)
+grep -r "nome-repo-antigo" --include="*.js" --include="*.html"
 
-# Buscar domínio antigo
-grep -r "grupoamcc" --include="*.js" --include="*.html" --include="*.css"
+# Buscar domínio antigo (substitua pelo domínio do projeto anterior)
+grep -r "dominio-antigo" --include="*.js" --include="*.html" --include="*.css"
 
 # Buscar URL do GitHub Pages antigo
 grep -r "github.io" --include="*.js" --include="*.html"
@@ -784,7 +784,7 @@ Preencher formulário (ou usar 🧪 Preencher Teste)
 Clicar: ✨ Gerar Post
 
 # 3. PRONTO! Post publicado automaticamente!
-URL: seusite.github.io/grupo-amcc-blog/posts/slug-do-post.html
+URL: seusite.github.io/nome-do-seu-blog/posts/slug-do-post.html
 ```
 
 ### Opção 2: Download Manual (SEM Token)
@@ -885,7 +885,7 @@ Clicar: ✨ Gerar Post
 - ✅ **Máscara de telefone** automática (formato BR)
 - ✅ **Armazenamento local** de leads como backup
 - ✅ **Mensagem de sucesso** após envio
-- ✅ **Categorias atualizadas** para contexto de motel
+- ✅ **Categorias personalizáveis** por nicho
 
 ### Changelog v3.0:
 - ✅ **Publicação automática no GitHub** via API Token
@@ -896,16 +896,18 @@ Clicar: ✨ Gerar Post
 
 ---
 
-## 🔄 PERSONALIZAÇÃO PARA OUTROS NICHOS
+## 🔄 PERSONALIZAÇÃO PARA CADA PROJETO
 
 ### Ao Duplicar o Projeto
 
-Quando você replicar este projeto para um cliente de **outro nicho** (não motel), lembre-se de:
+Quando você replicar este projeto para um novo cliente, lembre-se de:
 
 1. **Alterar as 5 versões de teste** em `assets/js/form-script.js`
 2. **Alterar as categorias** em `postin.html`
 3. **Alterar os textos padrão** do formulário de captura
 4. **Alterar as cores/branding** no CSS
+5. **Alterar o CNAME** com o domínio do cliente
+6. **Alterar o github-api.js** com repo e URL corretos
 
 ### Editando as 5 Versões de Teste
 
@@ -939,7 +941,9 @@ const testDataVersions = [
 
 ### Exemplos de Versões por Nicho
 
-#### Nicho: Contabilidade
+> **Nota:** Os exemplos abaixo são apenas sugestões. Adapte os títulos, categorias e conteúdos para o nicho específico do seu cliente.
+
+#### Exemplo: Contabilidade
 | # | Título | Categoria |
 |---|--------|-----------|
 | 1 | Como Regularizar Sua Empresa | Regularização |
@@ -948,7 +952,7 @@ const testDataVersions = [
 | 4 | Benefícios de Contratar um Contador | Serviços |
 | 5 | Erros Fiscais que Podem Quebrar Sua Empresa | Dicas |
 
-#### Nicho: Advocacia
+#### Exemplo: Advocacia
 | # | Título | Categoria |
 |---|--------|-----------|
 | 1 | Direitos Trabalhistas que Você Não Conhece | Trabalhista |
@@ -957,14 +961,14 @@ const testDataVersions = [
 | 4 | Direitos do Consumidor Online | Consumidor |
 | 5 | Quando Contratar um Advogado | Dicas |
 
-#### Nicho: Clínica Estética
+#### Exemplo: Clínica Estética
 | # | Título | Categoria |
 |---|--------|-----------|
 | 1 | Botox: Mitos e Verdades | Procedimentos |
 | 2 | Harmonização Facial: O Guia Completo | Harmonização |
 | 3 | Cuidados Pós-Procedimento | Dicas |
-| 4 | Tendências em Estética 2026 | Tendências |
-| 5 | Como Escolher sua Clínica de Estética | Guia |
+| 4 | Tendências em Estética | Tendências |
+| 5 | Como Escolher sua Clínica | Guia |
 
 ---
 
@@ -1027,8 +1031,11 @@ No formulário de criação de post (`postin.html`), preencha:
 Todos os leads também são salvos no `localStorage` do navegador do visitante como backup. Você pode acessar via console:
 
 ```javascript
-JSON.parse(localStorage.getItem('xenon_leads'))
+// Altere 'blog_leads' para o nome do seu projeto
+JSON.parse(localStorage.getItem('blog_leads'))
 ```
+
+> **Nota:** O nome da chave localStorage deve ser personalizado para cada projeto no arquivo `assets/js/blog-post.js`.
 
 ---
 
