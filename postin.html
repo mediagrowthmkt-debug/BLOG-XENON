@@ -311,6 +311,15 @@ Palavra-chave Principal: sua palavra-chave
                         </div>
                     </div>
                     <button type="button" id="addInternalImage" class="btn-secondary">+ Adicionar Imagem</button>
+                    
+                    <!-- PROMPTS DE IMAGEM GERADOS AUTOMATICAMENTE -->
+                    <div id="imagePromptsContainer" style="margin-top: 20px; display: none;">
+                        <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <span style="font-size: 0.9rem; color: #EB7A3D;">🎨 Prompts para gerar imagens (copie e cole na IA)</span>
+                            <button type="button" id="copyAllPrompts" class="btn-secondary" style="padding: 5px 12px; font-size: 0.8rem;">📋 Copiar Todos</button>
+                        </label>
+                        <div id="imagePromptsList" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                    </div>
                 </div>
             </section>
 
@@ -731,10 +740,10 @@ Imagem Interna 3 - Alt Text (opcional):
 
 ✍️ BLOCO 4: CONTEÚDO DO POST
 
-Introdução [100-150 palavras]:
+Introdução (100-150 palavras):
 
 
-Conteúdo Principal [SEMPRE use HTML formatado: <h2>, <h3>, <p>, <ul>, <li>]:
+Conteúdo Principal (SEMPRE use tags HTML: H2, H3, P, UL, LI):
 
 <h2>Título da Seção Principal</h2>
 <p>Parágrafo explicativo aqui...</p>

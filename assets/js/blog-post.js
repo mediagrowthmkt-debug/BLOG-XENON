@@ -14,9 +14,137 @@ document.addEventListener('DOMContentLoaded', function() {
     // Reading Progress Bar (opcional)
     initReadingProgress();
     
+    // Related Posts - Carrega posts da página principal
+    loadRelatedPosts();
+    
     // Table of Contents (opcional)
     // initTableOfContents();
 });
+
+// ======================
+// RELATED POSTS
+// ======================
+async function loadRelatedPosts() {
+    const relatedGrid = document.querySelector('.related-posts .related-grid');
+    if (!relatedGrid) return;
+    
+    try {
+        // Detecta se está rodando localmente ou no GitHub Pages
+        const isLocal = window.location.hostname === 'localhost' || 
+                       window.location.hostname === '127.0.0.1' ||
+                       window.location.protocol === 'file:';
+        
+        let htmlFiles = [];
+        
+        if (isLocal) {
+            // Modo LOCAL - Lista manual de posts
+            htmlFiles = [
+                { name: 'marble-or-granite-guide-for-your-home-in-worcester.html' },
+                { name: 'window-replacement-massachusetts-guide.html' }
+            ];
+        } else {
+            // Modo GITHUB PAGES - Busca via API
+            const repoMatch = window.location.pathname.match(/^\/([^\/]+)/);
+            const repoName = repoMatch ? repoMatch[1] : 'blog-template-md';
+            
+            const response = await fetch(`https://api.github.com/repos/mediagrowthmkt-debug/${repoName}/contents/posts`);
+            
+            if (!response.ok) throw new Error('Erro ao buscar posts');
+            
+            const files = await response.json();
+            htmlFiles = files.filter(file => 
+                file.name.endsWith('.html') && 
+                file.name !== 'index.html' &&
+                file.type === 'file'
+            ).map(file => ({ name: file.name }));
+        }
+        
+        // Pega o slug do post atual para excluí-lo
+        const currentPath = window.location.pathname;
+        const currentSlug = currentPath.split('/').pop();
+        
+        // Filtra para não mostrar o post atual
+        htmlFiles = htmlFiles.filter(file => file.name !== currentSlug);
+        
+        // Limita a 3 posts relacionados
+        const postsToShow = htmlFiles.slice(0, 3);
+        
+        if (postsToShow.length === 0) {
+            relatedGrid.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.5);">Nenhum post relacionado disponível.</p>';
+            return;
+        }
+        
+        // Carrega metadados de cada post
+        const posts = await Promise.all(postsToShow.map(file => loadPostMetadata(file.name)));
+        const validPosts = posts.filter(p => p !== null);
+        
+        // Renderiza os posts
+        relatedGrid.innerHTML = validPosts.map(post => `
+            <a href="${post.url}" class="related-card">
+                <div class="related-image">
+                    <img src="${post.image}" alt="${escapeHtmlAttr(post.title)}" loading="lazy" onerror="this.src='../assets/images/logo-mediagrowth.webp'">
+                </div>
+                <div class="related-content">
+                    <span class="related-category">${escapeHtmlAttr(post.category)}</span>
+                    <h3 class="related-title">${escapeHtmlAttr(post.title)}</h3>
+                    <p class="related-excerpt">${escapeHtmlAttr(post.excerpt)}</p>
+                </div>
+            </a>
+        `).join('');
+        
+        console.log('✅ Posts relacionados carregados:', validPosts.length);
+        
+    } catch (error) {
+        console.error('❌ Erro ao carregar posts relacionados:', error);
+        relatedGrid.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.5);">Erro ao carregar posts relacionados.</p>';
+    }
+}
+
+async function loadPostMetadata(filename) {
+    try {
+        // Determina o caminho base
+        const basePath = window.location.pathname.includes('/posts/') ? '' : 'posts/';
+        const url = basePath + filename;
+        
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Post não encontrado');
+        
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        // Extract metadata
+        const title = doc.querySelector('h1')?.textContent || doc.querySelector('title')?.textContent || 'Post sem título';
+        const description = doc.querySelector('meta[name="description"]')?.content || 
+                          doc.querySelector('.post-intro p')?.textContent?.substring(0, 120) || '';
+        const image = doc.querySelector('meta[property="og:image"]')?.content || 
+                     doc.querySelector('.cover-image img')?.src || 
+                     '../assets/images/logo-mediagrowth.webp';
+        const category = doc.querySelector('meta[name="category"]')?.content || 
+                        doc.querySelector('.category-badge')?.textContent || 'Geral';
+        
+        return {
+            title: title.trim(),
+            excerpt: description.trim().substring(0, 100) + (description.length > 100 ? '...' : ''),
+            image: image,
+            category: category.trim(),
+            url: filename
+        };
+    } catch (error) {
+        console.error('Erro ao carregar post:', filename, error);
+        return null;
+    }
+}
+
+function escapeHtmlAttr(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
 
 // ======================
 // BACK TO TOP

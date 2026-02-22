@@ -494,6 +494,20 @@ function convertGoogleDriveUrl(url) {
 function processImagesInHtml(html) {
     if (!html) return html;
     
+    // Remove lixo de templates que podem ter sido colados acidentalmente
+    // Ex: "[SEMPRE use HTML formatado: <h2>, <h3>, <p>, <ul>, <li>]:" 
+    // Quando isso é renderizado, as tags vazias são interpretadas e sobram só as vírgulas
+    html = html.replace(/\[SEMPRE use[^\]]*\]:?/gi, '');
+    html = html.replace(/\[\d+-\d+\s*palavras?\]:?/gi, '');
+    html = html.replace(/\(SEMPRE use[^)]*\):?/gi, '');
+    html = html.replace(/\(\d+-\d+\s*palavras?\):?/gi, '');
+    
+    // Remove padrões de vírgulas órfãs que sobram quando tags HTML vazias são removidas
+    // Padrão: linhas que contêm apenas vírgulas, espaços e quebras de linha
+    html = html.replace(/^[\s,]+$/gm, '');
+    html = html.replace(/^,\s*$/gm, '');
+    html = html.replace(/\n\s*,\s*\n/g, '\n');
+    
     // Procura por tags img com src
     const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
     
@@ -751,6 +765,58 @@ function showPreview() {
     previewWindow.document.close();
 }
 
+// ======================
+// GERADOR DE FORMULÁRIO DE LEAD (MINIMALISTA)
+// ======================
+function generateLeadFormHtml(data) {
+    // Se não tiver nenhum campo marcado, retorna vazio
+    if (!(data.formCollectName || data.formCollectEmail || data.formCollectPhone)) {
+        return '';
+    }
+    
+    // Detecta idioma baseado no conteúdo
+    const contentText = (data.h1Title || '') + ' ' + (data.contentBody || '');
+    const isEnglish = /\b(the|and|for|with|your|home|how|what|why|best|guide|tips)\b/i.test(contentText);
+    
+    // Textos por idioma
+    const i18n = isEnglish ? {
+        title: data.formTitle || 'Get Your Free Quote',
+        namePlaceholder: 'Your name',
+        emailPlaceholder: 'your@email.com',
+        phonePlaceholder: '(000) 000-0000',
+        button: data.formButtonText || 'Get Started'
+    } : {
+        title: data.formTitle || 'Solicite um Orçamento',
+        namePlaceholder: 'Seu nome',
+        emailPlaceholder: 'seu@email.com',
+        phonePlaceholder: '(00) 00000-0000',
+        button: data.formButtonText || 'Começar Agora'
+    };
+    
+    // Gera os campos do formulário
+    let formFields = '';
+    if (data.formCollectName) {
+        formFields += `<input type="text" name="name" placeholder="${i18n.namePlaceholder}" required style="flex: 1; min-width: 150px; padding: 14px 16px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; font-size: 0.95rem;">`;
+    }
+    if (data.formCollectEmail) {
+        formFields += `<input type="email" name="email" placeholder="${i18n.emailPlaceholder}" required style="flex: 1; min-width: 180px; padding: 14px 16px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; font-size: 0.95rem;">`;
+    }
+    if (data.formCollectPhone) {
+        formFields += `<input type="tel" name="phone" placeholder="${i18n.phonePlaceholder}" required style="flex: 1; min-width: 140px; padding: 14px 16px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; font-size: 0.95rem;">`;
+    }
+    
+    return `
+        <!-- LEAD CAPTURE FORM - MINIMALISTA -->
+        <section style="margin: 50px 0; padding: 35px 25px; background: rgba(235, 122, 61, 0.08); border-radius: 16px; text-align: center;">
+            <h3 style="font-size: 1.5rem; color: #EB7A3D; margin: 0 0 25px 0; font-weight: 600;">${i18n.title}</h3>
+            <form id="leadCaptureForm" data-webhook="${data.webhookUrl || ''}" style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; max-width: 600px; margin: 0 auto;">
+                ${formFields}
+                <button type="submit" style="padding: 14px 28px; background: #EB7A3D; color: #fff; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; white-space: nowrap;">${i18n.button}</button>
+            </form>
+            <div id="formMessage" style="margin-top: 15px; font-size: 0.9rem; display: none;"></div>
+        </section>`;
+}
+
 function generateFullPreviewPage(data) {
     // Debug de imagens
     console.log('🎨 Gerando preview com dados:', {
@@ -762,63 +828,81 @@ function generateFullPreviewPage(data) {
     let contentWithImages = data.contentBody || '<p>Conteúdo do post será exibido aqui...</p>';
     
     if (data.internalImages && data.internalImages.length > 0) {
-        const validImages = data.internalImages.filter(img => img.url && img.url.trim() !== '');
+        // Filtra imagens válidas e remove duplicatas da imagem de capa
+        const validImages = data.internalImages.filter(img => {
+            if (!img.url || img.url.trim() === '') return false;
+            // Remove se for a mesma URL da imagem de capa (evita duplicação)
+            if (data.coverImage && img.url.trim() === data.coverImage.trim()) {
+                console.log('⚠️ Imagem interna ignorada (mesma URL da capa):', img.url);
+                return false;
+            }
+            return true;
+        });
         
-        if (validImages.length > 0) {
-            console.log(`🎨 Distribuindo ${validImages.length} imagens ao longo do conteúdo`);
+        // Limita a 3 imagens para manter proporção consistente
+        const imagesToUse = validImages.slice(0, 3);
+        
+        if (imagesToUse.length > 0) {
+            console.log(`🎨 Distribuindo ${imagesToUse.length} imagens ao longo do conteúdo`);
             
-            // Divide o conteúdo em elementos HTML (h2, h3, p, ul, etc)
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = contentWithImages;
-            const elements = Array.from(tempDiv.children);
             
-            // Layouts variados para aplicar dinamicamente
-            const layouts = ['image-left', 'image-right', 'image-full'];
+            // Encontra todos os H2 para distribuir imagens
+            const h2Elements = tempDiv.querySelectorAll('h2');
+            const h2Array = Array.from(h2Elements);
             
-            // Distribui as imagens estrategicamente
-            if (elements.length > 0) {
-                const insertInterval = Math.max(2, Math.floor(elements.length / validImages.length));
+            // SISTEMA ADAPTÁVEL:
+            // - 1ª imagem: FULL WIDTH - destaque principal (grande)
+            // - 2ª imagem: LEFT - menor, texto flui ao lado
+            // - 3ª imagem: LEFT - menor, texto flui ao lado
+            const layoutSequence = ['image-full', 'image-left', 'image-left'];
+            
+            imagesToUse.forEach((img, index) => {
+                const layout = layoutSequence[index];
                 
-                validImages.forEach((img, index) => {
-                    const insertPosition = Math.min((index + 1) * insertInterval, elements.length - 1);
-                    const layout = layouts[index % layouts.length];
-                    
-                    // Cria o elemento de imagem com layout responsivo
-                    const imageHTML = `
-                        <figure class="dynamic-image ${layout}" style="margin: 30px 0; overflow: visible; clear: both;">
-                            <img src="${img.url}" 
-                                 alt="${img.alt || 'Imagem ' + (index + 1)}" 
-                                 class="${layout}"
-                                 style="border-radius: 12px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3); transition: transform 0.3s ease;"
-                                 onerror="this.style.border='2px dashed rgba(235, 122, 61, 0.5)'; this.alt='❌ Erro ao carregar'"
-                                 onload="console.log('✅ Imagem ${index + 1} carregada')">
-                            ${img.alt ? `<figcaption style="margin-top: 12px; font-size: 0.9rem; color: rgba(255,255,255,0.6); font-style: italic;">${img.alt}</figcaption>` : ''}
-                        </figure>
-                    `;
-                    
-                    // Insere a imagem após o elemento escolhido
-                    if (elements[insertPosition]) {
-                        elements[insertPosition].insertAdjacentHTML('afterend', imageHTML);
-                    }
-                });
-                
-                // Reconstrói o conteúdo com as imagens inseridas
-                contentWithImages = tempDiv.innerHTML;
-                console.log(`✅ ${validImages.length} imagens distribuídas ao longo do conteúdo`);
-            } else {
-                // Fallback: adiciona as imagens no final
-                const imagesHTML = validImages.map((img, index) => `
-                    <figure style="margin: 30px 0; overflow: hidden; border-radius: 12px;">
+                // Cria o elemento de imagem com clearfix automático para full
+                const needsClear = layout === 'image-full' ? ' style="clear:both;"' : '';
+                const imageHTML = `
+                    <figure class="dynamic-image ${layout}"${needsClear}>
                         <img src="${img.url}" 
-                             alt="${img.alt || 'Imagem ' + (index + 1)}" 
-                             style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);">
-                        ${img.alt ? `<figcaption style="margin-top: 12px; font-size: 0.9rem; color: rgba(255,255,255,0.6); font-style: italic; text-align: center;">${img.alt}</figcaption>` : ''}
+                             alt="${img.alt || 'Imagem do artigo'}" 
+                             loading="lazy">
+                        ${img.alt ? `<figcaption>${img.alt}</figcaption>` : ''}
                     </figure>
-                `).join('');
-                contentWithImages += imagesHTML;
-            }
+                `;
+                
+                // Distribui as imagens de forma inteligente
+                if (index === 0) {
+                    // 1ª imagem: após o primeiro H2 (ou no início se não houver)
+                    if (h2Array[0]) {
+                        h2Array[0].insertAdjacentHTML('afterend', imageHTML);
+                    } else {
+                        tempDiv.insertAdjacentHTML('afterbegin', imageHTML);
+                    }
+                } else if (index === 1) {
+                    // 2ª imagem: após o segundo H2 (ou terceiro se não houver segundo)
+                    const targetH2 = h2Array[1] || h2Array[2] || h2Array[h2Array.length - 1];
+                    if (targetH2) {
+                        targetH2.insertAdjacentHTML('afterend', imageHTML);
+                    } else {
+                        tempDiv.insertAdjacentHTML('beforeend', imageHTML);
+                    }
+                } else if (index === 2) {
+                    // 3ª imagem: após o terceiro H2 ou quarto
+                    const targetH2 = h2Array[3] || h2Array[2] || h2Array[h2Array.length - 1];
+                    if (targetH2 && targetH2 !== h2Array[1]) {
+                        targetH2.insertAdjacentHTML('afterend', imageHTML);
+                    } else {
+                        tempDiv.insertAdjacentHTML('beforeend', imageHTML);
+                    }
+                }
+            });
+            
+            contentWithImages = tempDiv.innerHTML;
+            console.log(`✅ ${imagesToUse.length} imagens distribuídas`);
         } else {
-            console.log('⚠️ Nenhuma imagem válida encontrada (URLs vazias)');
+            console.log('⚠️ Nenhuma imagem válida encontrada');
         }
     } else {
         console.log('⚠️ Nenhuma imagem interna fornecida');
@@ -909,14 +993,21 @@ function generateFullPreviewPage(data) {
             color: #fff;
             margin-top: 30px;
             margin-bottom: 15px;
-            clear: both;
         }
-        .content ul, .content ol {
+        /* Apenas listas ficam abaixo das imagens - parágrafos fluem ao lado */
+        .content ul, .content ol,
+        .post-content ul, .post-content ol {
             margin-left: 30px;
             margin-bottom: 20px;
+            overflow: hidden;
+            clear: both;
         }
-        .content li {
+        .content li, .post-content li {
             margin-bottom: 10px;
+        }
+        /* Parágrafos fluem ao lado das imagens */
+        .content p, .post-content p {
+            overflow: hidden;
         }
         
         /* Layouts de Imagens Dinâmicos */
@@ -924,16 +1015,33 @@ function generateFullPreviewPage(data) {
             overflow: auto;
         }
         
+        /* Container para imagens laterais - NÃO faz clear */
+        .image-container {
+            margin: 20px 0;
+        }
+        .image-container.image-full {
+            clear: both;
+            margin: 40px 0;
+        }
+        
+        .dynamic-image {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+        
         .dynamic-image.image-left {
             float: left;
-            max-width: 45%;
-            margin: 15px 30px 15px 0;
+            width: 40%;
+            max-width: 450px;
+            margin: 0 25px 15px 0;
         }
         
         .dynamic-image.image-right {
             float: right;
-            max-width: 45%;
-            margin: 15px 0 15px 30px;
+            width: 40%;
+            max-width: 450px;
+            margin: 0 0 15px 25px;
         }
         
         .dynamic-image.image-full {
@@ -946,12 +1054,10 @@ function generateFullPreviewPage(data) {
         .dynamic-image img {
             width: 100%;
             height: auto;
-            display: block;
-        }
-        
-        .dynamic-image.image-full img {
-            aspect-ratio: 16 / 9;
+            aspect-ratio: 16 / 10;
             object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease;
         }
         
         .dynamic-image img:hover {
@@ -959,15 +1065,17 @@ function generateFullPreviewPage(data) {
         }
         
         .dynamic-image figcaption {
-            margin-top: 10px;
+            padding: 12px 15px;
             font-size: 0.9rem;
             color: rgba(255, 255, 255, 0.6);
             font-style: italic;
+            background: rgba(0, 0, 0, 0.3);
         }
         
         /* Clearfix para floats */
         .content::after,
-        .main-content::after {
+        .main-content::after,
+        .post-content::after {
             content: "";
             display: table;
             clear: both;
@@ -975,9 +1083,15 @@ function generateFullPreviewPage(data) {
         
         /* Responsivo */
         @media (max-width: 768px) {
+            .image-container,
+            .image-container.image-left,
+            .image-container.image-right {
+                clear: both;
+            }
             .dynamic-image.image-left,
             .dynamic-image.image-right {
                 float: none;
+                width: 100%;
                 max-width: 100%;
                 margin: 20px 0;
             }
@@ -1104,6 +1218,8 @@ function generateFullPreviewPage(data) {
         <div class="post-conclusion">
             ${data.conclusion || '<p>Conclusão do post...</p>'}
         </div>
+        
+        ${generateLeadFormHtml(data)}
 
         <!-- TAGS -->
         <footer class="post-footer">
@@ -1111,21 +1227,14 @@ function generateFullPreviewPage(data) {
                 <strong>Tags:</strong>
                 ${data.tagsArray ? data.tagsArray.map(tag => `<a href="#" class="tag">#${tag}</a>`).join(' ') : ''}
             </div>
-            
-            <!-- CTA -->
-            <div class="post-cta">
-                <h3>${data.ctaTitle || 'Pronto para começar?'}</h3>
-                <p>${data.ctaText || 'Entre em contato conosco hoje!'}</p>
-                <a href="${data.ctaLink || '#'}" class="cta-button">${data.ctaButtonText || 'Fale Conosco'}</a>
-            </div>
         </footer>
     </article>
 
     <!-- RELATED POSTS -->
     <aside class="related-posts">
-        <h2>Posts Relacionados</h2>
-        <div class="related-grid">
-            <!-- Posts relacionados serão adicionados automaticamente -->
+        <h2>${/\b(the|and|for|with|your|home|how|what|why|best|guide|tips)\b/i.test(data.h1Title || '') ? 'Related Posts' : 'Posts Relacionados'}</h2>
+        <div class="related-grid" id="relatedGrid">
+            <p style="text-align: center; color: rgba(255,255,255,0.5);">Loading...</p>
         </div>
     </aside>
 
@@ -1134,72 +1243,6 @@ function generateFullPreviewPage(data) {
 
     <!-- SCRIPTS -->
     <script src="assets/js/blog-post.js"></script>
-</body>
-</html>`;
-}
-
-// ======================
-// FORM SUBMISSION
-// ======================
-                    </button>
-                </form>
-                
-                <div id="formMessage" style="margin-top: 20px; text-align: center; font-weight: 600; display: none;"></div>
-            </div>
-            
-            <script>
-            document.getElementById('leadCaptureForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const formData = new FormData(this);
-                const formButton = this.querySelector('button[type="submit"]');
-                const formMessage = document.getElementById('formMessage');
-                
-                // Disable button
-                formButton.disabled = true;
-                formButton.textContent = 'Enviando...';
-                
-                // Prepare webhook data
-                const webhookData = {
-                    email: formData.get('email') || '',
-                    phone: formData.get('phone') || '',
-                    name: formData.get('name') || '',
-                    campaign_name: '${data.campaignName || ''}',
-                    page_name: '${data.h1Title || ''}',
-                    FONTE: window.location.href,
-                    PLATAFORMA: 'BLOG',
-                    ${data.qualifiedQuestion ? `Qualified_question: formData.get('qualified_answer') || '',` : ''}
-                };
-                
-                try {
-                    const response = await fetch('${data.webhookUrl}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(webhookData)
-                    });
-                    
-                    if (response.ok) {
-                        formMessage.style.display = 'block';
-                        formMessage.style.color = '#4ade80';
-                        formMessage.textContent = '✅ Mensagem enviada com sucesso! Entraremos em contato em breve.';
-                        this.reset();
-                    } else {
-                        throw new Error('Erro no envio');
-                    }
-                } catch (error) {
-                    formMessage.style.display = 'block';
-                    formMessage.style.color = '#ef4444';
-                    formMessage.textContent = '❌ Erro ao enviar. Tente novamente.';
-                } finally {
-                    formButton.disabled = false;
-                    formButton.textContent = '${data.formButtonText || 'Enviar'}';
-                }
-            });
-            </script>
-        ` : ''}
-    </div>
 </body>
 </html>`;
 }
@@ -1479,62 +1522,20 @@ function collectFormData() {
 }
 
 async function generatePostHtml(data) {
-    console.log('📥 Carregando template...');
+    console.log('📥 Gerando HTML do post (mesmo formato do preview)...');
     
-    try {
-        // Carrega o template
-        const response = await fetch('templates/post-template.html');
-        
-        console.log('📡 Status do fetch template:', response.status);
-        
-        if (!response.ok) {
-            throw new Error(`Erro ao carregar template: ${response.status} ${response.statusText}`);
-        }
-        
-        let template = await response.text();
-        console.log('✅ Template carregado, tamanho:', template.length, 'caracteres');
-        
-        // Sanitiza URLs para prevenir JavaScript injection
-        const sanitizeUrl = (url) => {
-            if (!url) return '';
-            const urlStr = String(url).trim();
-            // Remove javascript:, data:, vbscript:, and other dangerous protocols
-            const dangerousProtocols = /^(\s*)(javascript|data|vbscript|file|about):/i;
-            if (dangerousProtocols.test(urlStr)) {
-                return '';
-            }
-            // Only allow http, https, mailto, and relative URLs
-            if (!/^(https?:\/\/|mailto:|\/|#)/i.test(urlStr)) {
-                return '';
-            }
-            return urlStr;
-        };
+    // Sanitiza URLs para prevenir JavaScript injection
+    const sanitizeUrl = (url) => {
+        if (!url) return '';
+        const urlStr = String(url).trim();
+        const dangerousProtocols = /^(\s*)(javascript|data|vbscript|file|about):/i;
+        if (dangerousProtocols.test(urlStr)) return '';
+        return urlStr;
+    };
     
-    // Substitui placeholders com sanitização
-    template = template.replace(/{{META_TITLE}}/g, escapeHtml(data.metaTitle));
-    template = template.replace(/{{META_DESCRIPTION}}/g, escapeHtml(data.metaDescription));
-    template = template.replace(/{{KEYWORDS}}/g, escapeHtml(data.keywords));
-    template = template.replace(/{{AUTHOR}}/g, escapeHtml(data.author));
-    template = template.replace(/{{CANONICAL_URL}}/g, sanitizeUrl(data.canonicalUrl));
-    template = template.replace(/{{COVER_IMAGE_URL}}/g, sanitizeUrl(data.coverImage));
-    template = template.replace(/{{DATE_PUBLISHED}}/g, data.datePublishedISO);
-    template = template.replace(/{{DATE_MODIFIED}}/g, data.dateModifiedISO);
-    template = template.replace(/{{CATEGORY}}/g, escapeHtml(data.category));
-    template = template.replace(/{{TAGS}}/g, escapeHtml(data.tags));
-    template = template.replace(/{{H1_TITLE}}/g, escapeHtml(data.h1Title));
-    template = template.replace(/{{SITE_LOGO_URL}}/g, sanitizeUrl(data.siteLogo));
-    template = template.replace(/{{SITE_URL}}/g, sanitizeUrl(data.siteUrl));
-    template = template.replace(/{{CATEGORY_SLUG}}/g, data.categorySlug);
-    template = template.replace(/{{READ_TIME}}/g, data.readTime);
-    template = template.replace(/{{AUTHOR_AVATAR}}/g, sanitizeUrl(data.authorAvatar));
-    template = template.replace(/{{DATE_PUBLISHED_FORMATTED}}/g, data.datePublishedFormatted);
-    template = template.replace(/{{COVER_IMAGE_ALT}}/g, escapeHtml(data.coverImageAlt));
-    template = template.replace(/{{COVER_IMAGE_CAPTION}}/g, escapeHtml(data.coverImageCaption));
-    
-    // Para conteúdo HTML, permitimos tags HTML mas escapamos scripts
+    // Sanitiza conteúdo HTML
     const sanitizeHtmlContent = (html) => {
         if (!html) return '';
-        // Remove scripts e event handlers
         return html
             .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
             .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
@@ -1543,89 +1544,502 @@ async function generatePostHtml(data) {
     };
     
     // Processa o conteúdo e distribui as imagens ao longo dele
-    let processedContentBody = sanitizeHtmlContent(data.contentBody);
+    let contentWithImages = sanitizeHtmlContent(data.contentBody) || '<p>Conteúdo do post...</p>';
     
     if (data.internalImages && data.internalImages.length > 0) {
-        const validImages = data.internalImages.filter(img => img.url && img.url.trim() !== '');
+        // Filtra imagens válidas e remove duplicatas da imagem de capa
+        const validImages = data.internalImages.filter(img => {
+            if (!img.url || img.url.trim() === '') return false;
+            // Remove se for a mesma URL da imagem de capa (evita duplicação)
+            if (data.coverImage && img.url.trim() === data.coverImage.trim()) {
+                console.log('⚠️ Imagem interna ignorada (mesma URL da capa):', img.url);
+                return false;
+            }
+            return true;
+        });
         
-        if (validImages.length > 0) {
-            console.log(`🎨 Distribuindo ${validImages.length} imagens ao longo do conteúdo HTML final`);
+        // Limita a 3 imagens para manter proporção consistente
+        const imagesToUse = validImages.slice(0, 3);
+        
+        if (imagesToUse.length > 0) {
+            console.log(`🎨 Distribuindo ${imagesToUse.length} imagens ao longo do conteúdo`);
             
-            // Divide o conteúdo em elementos HTML
             const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = processedContentBody;
-            const elements = Array.from(tempDiv.children);
+            tempDiv.innerHTML = contentWithImages;
             
-            // Layouts variados para aplicar dinamicamente
-            const layouts = ['image-left', 'image-right', 'image-full'];
+            // Encontra todos os H2 para distribuir imagens
+            const h2Elements = tempDiv.querySelectorAll('h2');
+            const h2Array = Array.from(h2Elements);
             
-            if (elements.length > 0) {
-                const insertInterval = Math.max(2, Math.floor(elements.length / validImages.length));
+            // SISTEMA ADAPTÁVEL:
+            // - 1ª imagem: FULL WIDTH - destaque principal (grande)
+            // - 2ª imagem: LEFT - menor, texto flui ao lado
+            // - 3ª imagem: LEFT - menor, texto flui ao lado
+            const layoutSequence = ['image-full', 'image-left', 'image-left'];
+            
+            imagesToUse.forEach((img, index) => {
+                const layout = layoutSequence[index];
                 
-                validImages.forEach((img, index) => {
-                    const insertPosition = Math.min((index + 1) * insertInterval, elements.length - 1);
-                    const layout = layouts[index % layouts.length];
-                    
-                    // Cria o elemento de imagem com layout responsivo
-                    const imageHTML = `
-                        <figure class="internal-image ${layout}">
-                            <img src="${sanitizeUrl(img.url)}" 
-                                 alt="${escapeHtml(img.alt || 'Imagem ' + (index + 1))}" 
-                                 class="${layout}"
-                                 loading="lazy">
-                            ${img.alt ? `<figcaption>${escapeHtml(img.alt)}</figcaption>` : ''}
-                        </figure>
-                    `;
-                    
-                    // Insere a imagem após o elemento escolhido
-                    if (elements[insertPosition]) {
-                        elements[insertPosition].insertAdjacentHTML('afterend', imageHTML);
-                    }
-                });
-                
-                // Reconstrói o conteúdo com as imagens inseridas
-                processedContentBody = tempDiv.innerHTML;
-                console.log(`✅ ${validImages.length} imagens distribuídas ao longo do conteúdo HTML`);
-            } else {
-                // Fallback: adiciona as imagens no final
-                const imagesHTML = validImages.map((img, index) => `
-                    <figure class="internal-image image-full">
+                // Cria o elemento de imagem com clearfix automático para full
+                const needsClear = layout === 'image-full' ? ' style="clear:both;"' : '';
+                const imageHTML = `
+                    <figure class="dynamic-image ${layout}"${needsClear}>
                         <img src="${sanitizeUrl(img.url)}" 
-                             alt="${escapeHtml(img.alt || 'Imagem ' + (index + 1))}" 
+                             alt="${escapeHtml(img.alt || 'Imagem do artigo')}" 
                              loading="lazy">
                         ${img.alt ? `<figcaption>${escapeHtml(img.alt)}</figcaption>` : ''}
                     </figure>
-                `).join('');
-                processedContentBody += imagesHTML;
-            }
+                `;
+                
+                // Distribui as imagens de forma inteligente
+                if (index === 0) {
+                    // 1ª imagem: após o primeiro H2 (ou no início se não houver)
+                    if (h2Array[0]) {
+                        h2Array[0].insertAdjacentHTML('afterend', imageHTML);
+                    } else {
+                        tempDiv.insertAdjacentHTML('afterbegin', imageHTML);
+                    }
+                } else if (index === 1) {
+                    // 2ª imagem: após o segundo H2 (ou terceiro se não houver segundo)
+                    const targetH2 = h2Array[1] || h2Array[2] || h2Array[h2Array.length - 1];
+                    if (targetH2) {
+                        targetH2.insertAdjacentHTML('afterend', imageHTML);
+                    } else {
+                        tempDiv.insertAdjacentHTML('beforeend', imageHTML);
+                    }
+                } else if (index === 2) {
+                    // 3ª imagem: após o terceiro H2 ou quarto
+                    const targetH2 = h2Array[3] || h2Array[2] || h2Array[h2Array.length - 1];
+                    if (targetH2 && targetH2 !== h2Array[1]) {
+                        targetH2.insertAdjacentHTML('afterend', imageHTML);
+                    } else {
+                        tempDiv.insertAdjacentHTML('beforeend', imageHTML);
+                    }
+                }
+            });
+            
+            contentWithImages = tempDiv.innerHTML;
+            console.log(`✅ ${imagesToUse.length} imagens distribuídas`);
         }
     }
     
-    template = template.replace(/{{INTRODUCTION}}/g, sanitizeHtmlContent(data.introduction));
-    template = template.replace(/{{CONTENT_BODY}}/g, processedContentBody);
-    template = template.replace(/{{CONCLUSION}}/g, sanitizeHtmlContent(data.conclusion));
-    
-    // Tags HTML
-    const tagsHtml = data.tagsArray.map(tag => 
+    // Gera HTML das tags
+    const tagsHtml = data.tagsArray ? data.tagsArray.map(tag => 
         `<a href="${sanitizeUrl(data.siteUrl)}/blog/tag/${generateSlug(tag)}" class="tag">#${escapeHtml(tag)}</a>`
-    ).join(' ');
-    template = template.replace(/{{TAGS_HTML}}/g, tagsHtml);
+    ).join(' ') : '';
     
-    // CTA
-    template = template.replace(/{{CTA_TITLE}}/g, escapeHtml(data.ctaTitle));
-    template = template.replace(/{{CTA_TEXT}}/g, escapeHtml(data.ctaText));
-    template = template.replace(/{{CTA_LINK}}/g, sanitizeUrl(data.ctaLink));
-    template = template.replace(/{{CTA_BUTTON_TEXT}}/g, escapeHtml(data.ctaButtonText));
+    // Detecta idioma baseado no conteúdo
+    const contentText = (data.h1Title || '') + ' ' + (data.contentBody || '');
+    const isEnglish = /\b(the|and|for|with|your|home|how|what|why|best|guide|tips)\b/i.test(contentText);
     
-    // Related posts (placeholder por enquanto)
-    template = template.replace(/{{RELATED_POSTS_HTML}}/g, '<!-- Posts relacionados serão adicionados automaticamente -->');
+    // Textos por idioma
+    const i18n = isEnglish ? {
+        title: data.formTitle || 'Get Your Free Quote',
+        name: 'Your name',
+        email: 'your@email.com',
+        phone: '(000) 000-0000',
+        button: data.formButtonText || 'Get Started',
+        sending: 'Sending...',
+        success: '✅ Message sent! We will contact you soon.',
+        error: '❌ Error sending. Try again.'
+    } : {
+        title: data.formTitle || 'Solicite um Orçamento',
+        name: 'Seu nome',
+        email: 'seu@email.com',
+        phone: '(00) 00000-0000',
+        button: data.formButtonText || 'Começar Agora',
+        sending: 'Enviando...',
+        success: '✅ Mensagem enviada! Entraremos em contato em breve.',
+        error: '❌ Erro ao enviar. Tente novamente.'
+    };
     
-    return template;
+    // Gera o formulário minimalista
+    const showLeadForm = data.formCollectName || data.formCollectEmail || data.formCollectPhone;
+    const leadFormHtml = showLeadForm ? `
+        <!-- LEAD CAPTURE FORM - MINIMALISTA -->
+        <section class="lead-capture-section" style="margin: 50px 0; padding: 35px 25px; background: rgba(235, 122, 61, 0.08); border-radius: 16px; text-align: center;">
+            <h3 style="font-size: 1.5rem; color: #EB7A3D; margin: 0 0 25px 0; font-weight: 600;">${escapeHtml(i18n.title)}</h3>
+            
+            <form id="leadCaptureForm" data-webhook="${sanitizeUrl(data.webhookUrl || '')}" style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; max-width: 600px; margin: 0 auto;">
+                ${data.formCollectName ? `<input type="text" name="name" placeholder="${escapeHtml(i18n.name)}" required style="flex: 1; min-width: 150px; padding: 14px 16px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; font-size: 0.95rem;">` : ''}
+                ${data.formCollectEmail ? `<input type="email" name="email" placeholder="${escapeHtml(i18n.email)}" required style="flex: 1; min-width: 180px; padding: 14px 16px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; font-size: 0.95rem;">` : ''}
+                ${data.formCollectPhone ? `<input type="tel" name="phone" placeholder="${escapeHtml(i18n.phone)}" required style="flex: 1; min-width: 140px; padding: 14px 16px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; font-size: 0.95rem;">` : ''}
+                <button type="submit" style="padding: 14px 28px; background: #EB7A3D; color: #fff; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; white-space: nowrap;">${escapeHtml(i18n.button)}</button>
+            </form>
+            <div id="formMessage" style="margin-top: 15px; font-size: 0.9rem; display: none;"></div>
+        </section>
+        
+        ${data.webhookUrl ? `<script>
+        document.getElementById('leadCaptureForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const btn = this.querySelector('button[type="submit"]');
+            const msg = document.getElementById('formMessage');
+            
+            btn.disabled = true;
+            btn.textContent = '${escapeHtml(i18n.sending)}';
+            
+            try {
+                const response = await fetch('${sanitizeUrl(data.webhookUrl)}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: formData.get('name') || '',
+                        email: formData.get('email') || '',
+                        phone: formData.get('phone') || '',
+                        campaign_name: '${escapeHtml(data.campaignName || '')}',
+                        page_name: '${escapeHtml(data.h1Title || '')}',
+                        FONTE: window.location.href,
+                        PLATAFORMA: 'BLOG'
+                    })
+                });
+                
+                if (response.ok) {
+                    msg.style.display = 'block';
+                    msg.style.color = '#4ade80';
+                    msg.textContent = '${escapeHtml(i18n.success)}';
+                    this.reset();
+                } else { throw new Error(); }
+            } catch (e) {
+                msg.style.display = 'block';
+                msg.style.color = '#f87171';
+                msg.textContent = '${escapeHtml(i18n.error)}';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '${escapeHtml(i18n.button)}';
+            }
+        });
+        </script>` : ''}
+    ` : '';
     
-    } catch (error) {
-        console.error('❌ Erro ao gerar HTML do template:', error);
-        throw error;
+    // HTML COMPLETO - IGUAL AO PREVIEW
+    return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO ESSENCIAL -->
+    <title>${escapeHtml(data.metaTitle || data.h1Title)}</title>
+    <meta name="description" content="${escapeHtml(data.metaDescription)}">
+    <meta name="keywords" content="${escapeHtml(data.keywords)}">
+    <meta name="author" content="${escapeHtml(data.author)}">
+    
+    <!-- CANONICAL -->
+    <link rel="canonical" href="${sanitizeUrl(data.canonicalUrl)}">
+    
+    <!-- OPEN GRAPH -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="${escapeHtml(data.metaTitle || data.h1Title)}">
+    <meta property="og:description" content="${escapeHtml(data.metaDescription)}">
+    <meta property="og:image" content="${sanitizeUrl(data.coverImage)}">
+    <meta property="og:url" content="${sanitizeUrl(data.canonicalUrl)}">
+    <meta property="article:published_time" content="${data.datePublishedISO}">
+    <meta property="article:modified_time" content="${data.dateModifiedISO}">
+    <meta property="article:author" content="${escapeHtml(data.author)}">
+    <meta property="article:section" content="${escapeHtml(data.category)}">
+    
+    <!-- TWITTER CARD -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${escapeHtml(data.metaTitle || data.h1Title)}">
+    <meta name="twitter:description" content="${escapeHtml(data.metaDescription)}">
+    <meta name="twitter:image" content="${sanitizeUrl(data.coverImage)}">
+    
+    <!-- SCHEMA.ORG -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "${escapeHtml(data.h1Title)}",
+        "image": "${sanitizeUrl(data.coverImage)}",
+        "author": { "@type": "Person", "name": "${escapeHtml(data.author)}" },
+        "publisher": {
+            "@type": "Organization",
+            "name": "MediaGrowth",
+            "logo": { "@type": "ImageObject", "url": "${sanitizeUrl(data.siteLogo)}" }
+        },
+        "datePublished": "${data.datePublishedISO}",
+        "dateModified": "${data.dateModifiedISO}",
+        "description": "${escapeHtml(data.metaDescription)}",
+        "mainEntityOfPage": { "@type": "WebPage", "@id": "${sanitizeUrl(data.canonicalUrl)}" }
     }
+    </script>
+    
+    <!-- STYLES -->
+    <link rel="stylesheet" href="../assets/css/blog-post.css">
+    
+    <!-- FAVICON -->
+    <link rel="icon" type="image/webp" href="../assets/images/faviconmd.webp">
+    
+    <style>
+        /* Estilos adicionais para imagens dinâmicas e formulário */
+        
+        /* Container para imagens laterais - NÃO faz clear */
+        .image-container {
+            margin: 20px 0;
+        }
+        .image-container.image-full {
+            clear: both;
+            margin: 40px 0;
+        }
+        
+        .dynamic-image {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dynamic-image.image-left {
+            float: left;
+            width: 40%;
+            max-width: 450px;
+            margin: 0 25px 15px 0;
+        }
+        
+        .dynamic-image.image-right {
+            float: right;
+            width: 40%;
+            max-width: 450px;
+            margin: 0 0 15px 25px;
+        }
+        
+        .dynamic-image.image-full {
+            width: 100%;
+            max-width: 100%;
+            margin: 30px 0;
+            clear: both;
+        }
+        
+        .dynamic-image img {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 10;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+        
+        .dynamic-image img:hover {
+            transform: scale(1.02);
+        }
+        
+        .dynamic-image figcaption {
+            padding: 12px 15px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .post-content::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        
+        /* Listas não colidem com imagens flutuantes */
+        .post-content ul, .post-content ol {
+            overflow: hidden;
+            clear: both;
+            margin-bottom: 20px;
+        }
+        .post-content h2, .post-content h3 {
+            clear: both;
+        }
+        
+        @media (max-width: 768px) {
+            .image-container,
+            .image-container.image-left,
+            .image-container.image-right {
+                clear: both;
+            }
+            .dynamic-image.image-left,
+            .dynamic-image.image-right {
+                float: none;
+                width: 100%;
+                max-width: 100%;
+                margin: 20px 0;
+            }
+        }
+        
+        /* Lead Capture Form Styles */
+        .lead-capture-section {
+            margin: 60px 0;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(235, 122, 61, 0.1) 0%, rgba(235, 122, 61, 0.05) 100%);
+            border: 1px solid rgba(235, 122, 61, 0.3);
+            border-radius: 20px;
+        }
+        .lead-capture-container {
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .lead-capture-title {
+            font-size: 1.8rem;
+            color: #EB7A3D;
+            margin-bottom: 10px;
+        }
+        .lead-capture-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+        }
+        .lead-capture-form .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .lead-capture-form label {
+            display: block;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+        .lead-capture-form input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .lead-capture-form input:focus {
+            outline: none;
+            border-color: #EB7A3D;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .lead-capture-form input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .lead-capture-button {
+            width: 100%;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #EB7A3D 0%, #d4692e 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        .lead-capture-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(235, 122, 61, 0.4);
+        }
+        .lead-capture-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .form-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 600;
+            display: none;
+        }
+        .form-message.success {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+            display: block;
+        }
+        .form-message.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVIGATION -->
+    <nav class="main-navigation" aria-label="Main Navigation">
+        <div class="nav-container">
+            <a href="${sanitizeUrl(data.siteUrl) || '/'}" class="nav-link">Home</a>
+            <a href="/posts" class="nav-link">Blog</a>
+        </div>
+    </nav>
+
+    <!-- ARTICLE CONTAINER -->
+    <article class="blog-post">
+        <!-- HEADER -->
+        <header class="post-header">
+            <div class="post-meta-top">
+                <span class="category-badge">${escapeHtml(data.category || 'Categoria')}</span>
+                <span class="read-time">⏱️ ${data.readTime || '5'} min de leitura</span>
+            </div>
+            
+            <h1 class="post-title">${escapeHtml(data.h1Title || 'Título do Post')}</h1>
+            
+            <div class="post-meta">
+                <div class="author-info">
+                    <img src="${sanitizeUrl(data.authorAvatar) || 'https://via.placeholder.com/100'}" alt="${escapeHtml(data.author)}" class="author-avatar">
+                    <div>
+                        <span class="author-name">${escapeHtml(data.author || 'Autor')}</span>
+                        <time datetime="${data.datePublishedISO}" class="publish-date">${data.datePublishedFormatted || new Date().toLocaleDateString('pt-BR')}</time>
+                    </div>
+                </div>
+                ${data.enableShare ? `
+                <div class="post-actions">
+                    <button class="share-btn" aria-label="Compartilhar" onclick="navigator.share ? navigator.share({title: '${escapeHtml(data.h1Title)}', url: window.location.href}) : alert('Link copiado!')">🔗 Compartilhar</button>
+                </div>
+                ` : ''}
+            </div>
+        </header>
+
+        <!-- COVER IMAGE -->
+        <figure class="post-cover">
+            <img src="${sanitizeUrl(data.coverImage) || 'https://via.placeholder.com/1200x630'}" 
+                 alt="${escapeHtml(data.coverImageAlt || 'Imagem de capa')}" 
+                 width="1200" 
+                 height="630"
+                 loading="eager">
+            ${data.coverImageCaption ? `<figcaption>${escapeHtml(data.coverImageCaption)}</figcaption>` : ''}
+        </figure>
+
+        <!-- INTRODUCTION -->
+        <div class="post-intro">
+            ${sanitizeHtmlContent(data.introduction) || '<p>Introdução do post...</p>'}
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="post-content">
+            ${contentWithImages}
+        </div>
+
+        <!-- CONCLUSION -->
+        <div class="post-conclusion">
+            ${sanitizeHtmlContent(data.conclusion) || '<p>Conclusão do post...</p>'}
+        </div>
+        
+        ${leadFormHtml}
+
+        <!-- TAGS -->
+        <footer class="post-footer">
+            <div class="tags">
+                <strong>Tags:</strong>
+                ${tagsHtml}
+            </div>
+        </footer>
+    </article>
+
+    <!-- RELATED POSTS -->
+    <aside class="related-posts">
+        <h2>${isEnglish ? 'Related Posts' : 'Posts Relacionados'}</h2>
+        <div class="related-grid" id="relatedGrid">
+            <p style="text-align: center; color: rgba(255,255,255,0.5);">${isEnglish ? 'Loading...' : 'Carregando...'}</p>
+        </div>
+    </aside>
+
+    <!-- BACK TO TOP -->
+    <button id="backToTop" class="back-to-top" aria-label="${isEnglish ? 'Back to top' : 'Voltar ao topo'}">↑</button>
+
+    <!-- SCRIPTS -->
+    <script src="../assets/js/blog-post.js"></script>
+</body>
+</html>`;
 }
 
 function downloadPost(html, slug) {
@@ -2333,6 +2747,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             showStatus(`✅ ${fieldsCount} campos preenchidos com sucesso! Revise os dados e clique em "Gerar Post".`, 'success');
             
+            // ====================================================================
+            // GERAR PROMPTS AUTOMÁTICOS PARA IMAGENS
+            // ====================================================================
+            generateImagePrompts();
+            
             // Scroll suave para o primeiro campo preenchido
             document.getElementById('h1Title')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
@@ -2434,6 +2853,179 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+// ======================
+// GERADOR DE PROMPTS PARA IMAGENS
+// ======================
+
+function generateImagePrompts() {
+    const container = document.getElementById('imagePromptsContainer');
+    const promptsList = document.getElementById('imagePromptsList');
+    
+    if (!container || !promptsList) return;
+    
+    // Pega os dados do formulário
+    const h1Title = document.getElementById('h1Title')?.value || '';
+    const category = document.getElementById('category')?.value || '';
+    const contentBody = document.getElementById('contentBody')?.value || '';
+    
+    if (!h1Title) {
+        container.style.display = 'none';
+        return;
+    }
+    
+    // Detecta idioma
+    const isEnglish = /\b(the|and|for|with|your|home|how|what|why|best|guide|tips)\b/i.test(h1Title + ' ' + contentBody);
+    
+    // Extrai H2s do conteúdo para criar prompts específicos
+    const h2Matches = contentBody.match(/<h2[^>]*>(.*?)<\/h2>/gi) || [];
+    const h2Titles = h2Matches.map(h2 => h2.replace(/<[^>]+>/g, '').trim()).slice(0, 3);
+    
+    // Detecta o tipo de negócio/serviço baseado no conteúdo
+    const businessKeywords = extractBusinessKeywords(h1Title + ' ' + contentBody);
+    
+    // Gera prompts baseados no conteúdo
+    const prompts = [];
+    
+    // Prompt 1: Imagem principal (hero/capa)
+    if (isEnglish) {
+        prompts.push({
+            label: '🖼️ Cover Image (Hero)',
+            prompt: `Create a professional, high-quality photograph showing ${businessKeywords.service || 'professional service'}. Scene: ${businessKeywords.scene || 'modern workspace'}. Style: Clean, professional, well-lit. Subject: ${h1Title.substring(0, 50)}. Photorealistic, 16:9 aspect ratio, suitable for blog header.`
+        });
+    } else {
+        prompts.push({
+            label: '🖼️ Imagem de Capa (Hero)',
+            prompt: `Crie uma fotografia profissional de alta qualidade mostrando ${businessKeywords.service || 'serviço profissional'}. Cenário: ${businessKeywords.scene || 'ambiente moderno'}. Estilo: Limpo, profissional, bem iluminado. Tema: ${h1Title.substring(0, 50)}. Fotorrealista, proporção 16:9, adequado para cabeçalho de blog.`
+        });
+    }
+    
+    // Prompt 2: Baseado no primeiro H2 ou tema principal
+    const topic1 = h2Titles[0] || h1Title;
+    if (isEnglish) {
+        prompts.push({
+            label: '📸 Image 2 (Content)',
+            prompt: `Professional photograph of ${businessKeywords.worker || 'professional'} ${businessKeywords.action || 'working'}. Context: ${topic1.substring(0, 40)}. Setting: ${businessKeywords.location || 'professional environment'}. High quality, natural lighting, 16:10 aspect ratio.`
+        });
+    } else {
+        prompts.push({
+            label: '📸 Imagem 2 (Conteúdo)',
+            prompt: `Fotografia profissional de ${businessKeywords.worker || 'profissional'} ${businessKeywords.action || 'trabalhando'}. Contexto: ${topic1.substring(0, 40)}. Ambiente: ${businessKeywords.location || 'ambiente profissional'}. Alta qualidade, iluminação natural, proporção 16:10.`
+        });
+    }
+    
+    // Prompt 3: Baseado no segundo H2 ou detalhe
+    const topic2 = h2Titles[1] || businessKeywords.detail || 'details';
+    if (isEnglish) {
+        prompts.push({
+            label: '📷 Image 3 (Detail)',
+            prompt: `Close-up professional photo showing ${businessKeywords.detail || 'professional details'} related to ${topic2.substring(0, 30)}. ${businessKeywords.materials ? 'Materials: ' + businessKeywords.materials + '.' : ''} High resolution, sharp focus, professional quality, 16:10 aspect ratio.`
+        });
+    } else {
+        prompts.push({
+            label: '📷 Imagem 3 (Detalhe)',
+            prompt: `Foto profissional em close-up mostrando ${businessKeywords.detail || 'detalhes profissionais'} relacionados a ${topic2.substring(0, 30)}. ${businessKeywords.materials ? 'Materiais: ' + businessKeywords.materials + '.' : ''} Alta resolução, foco nítido, qualidade profissional, proporção 16:10.`
+        });
+    }
+    
+    // Renderiza os prompts
+    promptsList.innerHTML = prompts.map((p, i) => `
+        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-weight: 600; color: #fff; font-size: 0.85rem;">${p.label}</span>
+                <button type="button" class="copy-prompt-btn" data-prompt="${i}" style="padding: 4px 10px; font-size: 0.75rem; background: #EB7A3D; color: #fff; border: none; border-radius: 4px; cursor: pointer;">📋 Copy</button>
+            </div>
+            <textarea readonly style="width: 100%; min-height: 60px; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: rgba(255,255,255,0.8); font-size: 0.85rem; resize: vertical; font-family: inherit;">${p.prompt}</textarea>
+        </div>
+    `).join('');
+    
+    // Mostra o container
+    container.style.display = 'block';
+    
+    // Event listeners para copiar
+    promptsList.querySelectorAll('.copy-prompt-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const index = parseInt(this.dataset.prompt);
+            const textarea = this.closest('div').querySelector('textarea');
+            copyToClipboard(textarea.value);
+            this.textContent = '✅ Copied!';
+            setTimeout(() => { this.textContent = '📋 Copy'; }, 2000);
+        });
+    });
+    
+    // Copiar todos
+    document.getElementById('copyAllPrompts')?.addEventListener('click', function() {
+        const allPrompts = prompts.map(p => `${p.label}\n${p.prompt}`).join('\n\n---\n\n');
+        copyToClipboard(allPrompts);
+        this.textContent = '✅ Copiado!';
+        setTimeout(() => { this.textContent = '📋 Copiar Todos'; }, 2000);
+    });
+    
+    console.log('✅ Prompts de imagem gerados:', prompts.length);
+}
+
+function extractBusinessKeywords(text) {
+    const keywords = {
+        service: null,
+        worker: null,
+        action: null,
+        scene: null,
+        location: null,
+        detail: null,
+        materials: null
+    };
+    
+    // Detecta tipo de serviço/negócio
+    const servicePatterns = {
+        // Construção
+        'window|janela': { service: 'window replacement/installation', worker: 'contractor', action: 'installing windows', scene: 'home exterior', location: 'residential home', detail: 'window frame and glass', materials: 'vinyl, wood, glass' },
+        'roof|telhado': { service: 'roofing work', worker: 'roofer', action: 'installing shingles', scene: 'house rooftop', location: 'residential roof', detail: 'roofing materials', materials: 'shingles, tiles, metal' },
+        'marble|granite|countertop|bancada|mármore|granito': { service: 'countertop installation', worker: 'stone installer', action: 'measuring and installing countertops', scene: 'modern kitchen', location: 'kitchen interior', detail: 'stone surface texture and veining', materials: 'marble, granite, quartz' },
+        'hvac|air condition|heating|ar condicionado|aquecimento': { service: 'HVAC installation', worker: 'HVAC technician', action: 'installing AC unit', scene: 'home interior', location: 'utility room', detail: 'HVAC equipment', materials: 'ductwork, units' },
+        'plumb|encanamento|hidráulica': { service: 'plumbing work', worker: 'plumber', action: 'repairing pipes', scene: 'bathroom or kitchen', location: 'under sink', detail: 'pipes and fittings', materials: 'copper, PVC pipes' },
+        'electric|elétric': { service: 'electrical work', worker: 'electrician', action: 'wiring installation', scene: 'home interior', location: 'electrical panel', detail: 'wires and connections', materials: 'wiring, outlets' },
+        'paint|pintura': { service: 'painting service', worker: 'painter', action: 'painting walls', scene: 'room interior', location: 'living room', detail: 'paint finish and color', materials: 'paint, brushes, rollers' },
+        'floor|piso|carpet|carpete': { service: 'flooring installation', worker: 'flooring installer', action: 'laying floor', scene: 'room interior', location: 'living space', detail: 'floor texture and pattern', materials: 'hardwood, tile, carpet' },
+        'landscap|jardim|paisagismo': { service: 'landscaping', worker: 'landscaper', action: 'planting and designing', scene: 'backyard garden', location: 'outdoor space', detail: 'plants and design elements', materials: 'plants, stones, mulch' },
+        'clean|limpeza': { service: 'cleaning service', worker: 'cleaning professional', action: 'cleaning home', scene: 'clean interior', location: 'tidy room', detail: 'spotless surfaces', materials: 'cleaning supplies' },
+        // Geral
+        'home|casa|residência': { service: 'home improvement', worker: 'contractor', action: 'home renovation', scene: 'beautiful home', location: 'residential property', detail: 'home features', materials: 'construction materials' }
+    };
+    
+    for (const [pattern, values] of Object.entries(servicePatterns)) {
+        if (new RegExp(pattern, 'i').test(text)) {
+            Object.assign(keywords, values);
+            break;
+        }
+    }
+    
+    // Fallback se nada for detectado
+    if (!keywords.service) {
+        keywords.service = 'professional service';
+        keywords.worker = 'professional';
+        keywords.action = 'providing service';
+        keywords.scene = 'modern workspace';
+        keywords.location = 'professional setting';
+        keywords.detail = 'work details';
+    }
+    
+    return keywords;
+}
+
+function copyToClipboard(text) {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text);
+    } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+    }
+}
 
 // ======================
 // EXPORT FUNCTIONS
