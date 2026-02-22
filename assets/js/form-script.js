@@ -1155,16 +1155,104 @@ function generateFullPreviewPage(data) {
             box-shadow: 0 4px 20px rgba(235, 122, 61, 0.4);
             z-index: 1000;
         }
+        
+        /* Header com Logo */
+        .site-header {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-logo {
+            height: 40px;
+            width: auto;
+        }
+        .header-nav {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        .header-nav a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+        .header-nav a:hover {
+            color: #EB7A3D;
+        }
+        
+        /* Footer com Logo */
+        .site-footer {
+            background: rgba(255, 255, 255, 0.03);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 60px 30px 40px;
+            margin-top: 80px;
+            text-align: center;
+        }
+        .footer-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .footer-logo {
+            height: 50px;
+            width: auto;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+        .footer-tagline {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+        .footer-subtitle {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        .footer-love {
+            color: #EB7A3D;
+        }
+        .footer-copyright {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .header-nav {
+                gap: 20px;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- NAVIGATION -->
-    <nav class="main-navigation" aria-label="Main Navigation">
-        <div class="nav-container">
-            <a href="https://mediagrowth.com.br" class="nav-link">Site Oficial</a>
-            <a href="https://blogs.mediagrowth.com.br" class="nav-link">Ver Todos os Blogs</a>
+    <!-- HEADER -->
+    <header class="site-header">
+        <div class="header-container">
+            <img src="../assets/images/logo-mediagrowth.webp" alt="MediaGrowth" class="header-logo">
+            <nav class="header-nav">
+                <a href="https://mediagrowth.com.br">Site Oficial</a>
+                <a href="https://blogs.mediagrowth.com.br">Ver Todos os Blogs</a>
+            </nav>
         </div>
-    </nav>
+    </header>
 
     <!-- ARTICLE CONTAINER -->
     <article class="blog-post">
@@ -1237,6 +1325,16 @@ function generateFullPreviewPage(data) {
             <p style="text-align: center; color: rgba(255,255,255,0.5);">Loading...</p>
         </div>
     </aside>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <img src="../assets/images/logo-mediagrowth.webp" alt="MediaGrowth" class="footer-logo">
+            <p class="footer-tagline">Blog desenvolvido pela MediaGrowth</p>
+            <p class="footer-subtitle">Feito com <span class="footer-love">♥</span> e tecnologia</p>
+            <p class="footer-copyright">© ${new Date().getFullYear()} MediaGrowth. Todos os direitos reservados.</p>
+        </div>
+    </footer>
 
     <!-- BACK TO TOP -->
     <button id="backToTop" class="back-to-top" aria-label="Voltar ao topo">↑</button>
@@ -1951,16 +2049,104 @@ async function generatePostHtml(data) {
             color: #ef4444;
             display: block;
         }
+        
+        /* Header com Logo */
+        .site-header {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-logo {
+            height: 40px;
+            width: auto;
+        }
+        .header-nav {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        .header-nav a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+        .header-nav a:hover {
+            color: #EB7A3D;
+        }
+        
+        /* Footer com Logo */
+        .site-footer {
+            background: rgba(255, 255, 255, 0.03);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 60px 30px 40px;
+            margin-top: 80px;
+            text-align: center;
+        }
+        .footer-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .footer-logo {
+            height: 50px;
+            width: auto;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+        .footer-tagline {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+        .footer-subtitle {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        .footer-love {
+            color: #EB7A3D;
+        }
+        .footer-copyright {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .header-nav {
+                gap: 20px;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- NAVIGATION -->
-    <nav class="main-navigation" aria-label="Main Navigation">
-        <div class="nav-container">
-            <a href="https://mediagrowth.com.br" class="nav-link">Site Oficial</a>
-            <a href="https://blogs.mediagrowth.com.br" class="nav-link">Ver Todos os Blogs</a>
+    <!-- HEADER -->
+    <header class="site-header">
+        <div class="header-container">
+            <img src="../assets/images/logo-mediagrowth.webp" alt="MediaGrowth" class="header-logo">
+            <nav class="header-nav">
+                <a href="https://mediagrowth.com.br">Site Oficial</a>
+                <a href="https://blogs.mediagrowth.com.br">Ver Todos os Blogs</a>
+            </nav>
         </div>
-    </nav>
+    </header>
 
     <!-- ARTICLE CONTAINER -->
     <article class="blog-post">
@@ -2032,6 +2218,16 @@ async function generatePostHtml(data) {
             <p style="text-align: center; color: rgba(255,255,255,0.5);">${isEnglish ? 'Loading...' : 'Carregando...'}</p>
         </div>
     </aside>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <img src="../assets/images/logo-mediagrowth.webp" alt="MediaGrowth" class="footer-logo">
+            <p class="footer-tagline">Blog desenvolvido pela MediaGrowth</p>
+            <p class="footer-subtitle">Feito com <span class="footer-love">♥</span> e tecnologia</p>
+            <p class="footer-copyright">© ${new Date().getFullYear()} MediaGrowth. Todos os direitos reservados.</p>
+        </div>
+    </footer>
 
     <!-- BACK TO TOP -->
     <button id="backToTop" class="back-to-top" aria-label="${isEnglish ? 'Back to top' : 'Voltar ao topo'}">↑</button>
