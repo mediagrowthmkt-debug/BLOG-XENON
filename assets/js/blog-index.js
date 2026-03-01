@@ -327,9 +327,10 @@ function sanitizeUrl(url) {
     if (!url) return '#';
     const trimmed = String(url).trim();
     
-    // Permitir caminhos relativos seguros (posts/xxx.html, ./xxx, ../xxx, /xxx)
-    // Regex: aceita caminhos que começam com letra/número seguido de / (ex: posts/)
-    // ou que começam com /, ./, ../
+    // Permitir caminhos relativos seguros:
+    // - posts/xxx.html (pasta/arquivo)
+    // - ./xxx, ../xxx, /xxx (caminhos relativos)
+    // Regex: aceita caminhos que começam com letra/número (pode ter hífen/underscore) seguido de /
     if (/^(\/(?!\/)|\.\/|\.\.\/|[a-zA-Z0-9][a-zA-Z0-9_-]*\/)/.test(trimmed)) {
         // Verificar se não contém protocolos perigosos escondidos
         if (!trimmed.includes('javascript:') && !trimmed.includes('data:')) {
@@ -337,8 +338,13 @@ function sanitizeUrl(url) {
         }
     }
     
-    // Permitir arquivos .html no mesmo nível
+    // Permitir arquivos .html (pode ter hífens e underscores no nome)
     if (/^[a-zA-Z0-9][a-zA-Z0-9_-]*\.html$/.test(trimmed)) {
+        return trimmed;
+    }
+    
+    // Permitir caminhos completos como posts/nome-do-post.html
+    if (/^[a-zA-Z0-9][a-zA-Z0-9_-]*\/[a-zA-Z0-9][a-zA-Z0-9_-]*\.html$/.test(trimmed)) {
         return trimmed;
     }
     
