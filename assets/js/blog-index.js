@@ -53,11 +53,9 @@ async function loadPosts() {
         let htmlFiles = [];
         
         if (isLocal) {
-            // Modo LOCAL - Lista manual de posts
-            htmlFiles = [
-                { name: 'window-replacement-massachusetts-guide.html' }
-            ];
-            console.log('📁 Posts locais:', htmlFiles.length);
+            // Modo LOCAL - Lista vazia (posts são carregados via API em produção)
+            htmlFiles = [];
+            console.log('📁 Modo local: nenhum post de teste carregado');
         } else {
             // Modo GITHUB PAGES - Busca via API
             const response = await fetch('https://api.github.com/repos/mediagrowthmkt-debug/BLOG-XENON/contents/posts');
@@ -134,36 +132,9 @@ async function loadPostMetadata(url) {
 }
 
 function getExamplePosts() {
-    // Example posts for testing
-    return [
-        {
-            title: 'Experiências românticas que fazem a noite perfeita',
-            excerpt: 'Ideias e detalhes que transformam uma hospedagem no Motel Xenon em um momento inesquecível.',
-            image: 'assets/images/logo-motel-xenon.png',
-            category: 'Experiências',
-            author: 'Motel Xenon',
-            date: '2026-02-15',
-            url: 'posts/window-replacement-massachusetts-guide.html'
-        },
-        {
-            title: 'Como planejar uma surpresa especial nas suítes',
-            excerpt: 'Dicas rápidas para criar uma atmosfera envolvente e aproveitar cada detalhe do Motel Xenon.',
-            image: 'assets/images/logo-motel-xenon.png',
-            category: 'Dicas',
-            author: 'Motel Xenon',
-            date: '2026-02-10',
-            url: 'posts/window-replacement-massachusetts-guide.html'
-        },
-        {
-            title: 'Novidades e promoções: fique por dentro',
-            excerpt: 'Confira as novidades do Motel Xenon e descubra como aproveitar as melhores condições.',
-            image: 'assets/images/logo-motel-xenon.png',
-            category: 'Novidades',
-            author: 'Motel Xenon',
-            date: '2026-02-05',
-            url: 'posts/window-replacement-massachusetts-guide.html'
-        }
-    ];
+    // Retorna array vazio - posts reais são carregados via GitHub API
+    // Apenas posts publicados pelo postin.html devem aparecer
+    return [];
 }
 
 // ========================================
