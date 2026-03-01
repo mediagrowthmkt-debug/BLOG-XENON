@@ -18,6 +18,7 @@
 6. [Segurança XSS](#6-segurança-xss)
 7. [Git e GitHub](#7-git-e-github)
 8. [Conflitos de Código](#8-conflitos-de-código)
+9. [Links do Blog Index](#9-links-do-blog-index) ⭐ NOVO!
 
 ---
 
@@ -411,6 +412,74 @@ grep -r "function setupImageUploadHandlers" --include="*.js"
 
 ---
 
+## 9. LINKS DO BLOG INDEX
+
+### ❌ Problema 9.1: Clicar no card do blog vai para `/#` ao invés de abrir o post
+
+**Sintoma:** Na página principal (`index.html`), ao clicar em um card de post, a URL fica como `https://seudominio.com/#` ao invés de abrir o post.
+
+**Causa:** A função `sanitizeUrl()` em `assets/js/blog-index.js` não reconhece caminhos no formato `posts/nome-do-post.html` como válidos.
+
+**Detalhes técnicos:**
+- A URL do post é `posts/xenon-motel-criciuma-e-bom-e-confiavel.html`
+- A regex original só aceitava: `/xxx`, `./xxx`, `../xxx` ou arquivos `.html` no mesmo nível
+- Não aceitava o padrão `pasta/arquivo.html`
+
+**Solução:** Atualizar a função `sanitizeUrl()` em `assets/js/blog-index.js`:
+
+```javascript
+function sanitizeUrl(url) {
+    if (!url) return '#';
+    const trimmed = String(url).trim();
+    
+    // Permitir caminhos relativos seguros:
+    // - posts/xxx.html (pasta/arquivo)
+    // - ./xxx, ../xxx, /xxx (caminhos relativos)
+    if (/^(\/(?!\/)|\.\/|\.\.\/|[a-zA-Z0-9][a-zA-Z0-9_-]*\/)/.test(trimmed)) {
+        if (!trimmed.includes('javascript:') && !trimmed.includes('data:')) {
+            return trimmed;
+        }
+    }
+    
+    // Permitir arquivos .html (pode ter hífens e underscores no nome)
+    if (/^[a-zA-Z0-9][a-zA-Z0-9_-]*\.html$/.test(trimmed)) {
+        return trimmed;
+    }
+    
+    // ✅ CORREÇÃO: Permitir caminhos completos como posts/nome-do-post.html
+    if (/^[a-zA-Z0-9][a-zA-Z0-9_-]*\/[a-zA-Z0-9][a-zA-Z0-9_-]*\.html$/.test(trimmed)) {
+        return trimmed;
+    }
+    
+    try {
+        const parsed = new URL(trimmed);
+        const protocol = parsed.protocol.toLowerCase();
+        if (protocol === 'http:' || protocol === 'https:') {
+            return parsed.href;
+        }
+    } catch (error) {
+        return '#';
+    }
+    return '#';
+}
+```
+
+**Regex adicionada:**
+```javascript
+/^[a-zA-Z0-9][a-zA-Z0-9_-]*\/[a-zA-Z0-9][a-zA-Z0-9_-]*\.html$/
+```
+
+Esta regex aceita:
+- ✅ `posts/meu-post.html`
+- ✅ `posts/xenon-motel-criciuma-e-bom-e-confiavel.html`
+- ✅ `blog/artigo_123.html`
+- ❌ `javascript:alert(1)` (bloqueado)
+- ❌ `../../../etc/passwd` (bloqueado)
+
+**Verificação:** Após corrigir, clicar em um card deve abrir a URL correta do post.
+
+---
+
 ## ✅ CHECKLIST PRÉ-DEPLOY
 
 Antes de considerar a implementação completa, verificar:
@@ -425,6 +494,7 @@ Antes de considerar a implementação completa, verificar:
 - [ ] Links do Bloco 5 aparecem no post
 - [ ] Formulário de lead aparece (se configurado)
 - [ ] Responsivo funciona em mobile
+- [ ] **⭐ NOVO:** Cards do index redirecionam para os posts (não para `/#`)
 - [ ] GitHub Pages está ativado
 - [ ] CNAME configurado (se usar domínio customizado)
 
