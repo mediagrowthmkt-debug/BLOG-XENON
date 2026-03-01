@@ -10,6 +10,36 @@
 
 ---
 
+## ⚠️ AVISOS IMPORTANTES - LEIA ANTES DE COMEÇAR!
+
+### 🔴 PROBLEMAS CONHECIDOS
+Antes de iniciar a implementação, **LEIA OBRIGATORIAMENTE**:
+📋 **[PROBLEMAS-CONHECIDOS-SOLUCOES.md](PROBLEMAS-CONHECIDOS-SOLUCOES.md)**
+
+### ⚡ PONTOS CRÍTICOS MAIS COMUNS
+
+| Problema | Causa | Solução Rápida |
+|----------|-------|----------------|
+| Upload não funciona | Nome do repo errado | Verificar `IMAGE_REPO_NAME` em `github-image-uploader.js` |
+| Erro "sanitizeUrl not defined" | Função não global | Mover para FORA do `DOMContentLoaded` em `form-script.js` |
+| Layout sem margens | CSS inline ausente | Garantir `.blog-post { max-width: 800px; margin: 0 auto; }` |
+| Logo não aparece | Pasta `assets/images/` vazia | Commitar logo.webp na pasta correta |
+| Links não aparecem | `generateLinksHtml()` ausente | Verificar função em `form-script.js` |
+| Posts não listam | `posts/index.html` com XSS | Usar DOM API, não innerHTML direto |
+
+### 📦 ARQUIVOS OBRIGATÓRIOS DO REPOSITÓRIO
+
+```
+✅ scripts/github-image-uploader.js   ← Upload v4.0
+✅ assets/js/form-script.js           ← Lógica do formulário
+✅ assets/css/blog-post.css           ← Estilos do post
+✅ assets/images/logo-*.webp          ← Logo do cliente
+✅ postin.html                         ← Formulário de criação
+✅ posts/index.html                   ← Lista de posts
+```
+
+---
+
 ## ✅ CHECKLIST COMPLETO
 
 ### FASE 1: PREPARAÇÃO (5 min)
@@ -180,6 +210,21 @@ Edite: `assets/js/form-script.js`
 
 > **IMPORTANTE:** Sistema de upload IMEDIATO - imagens vão para GitHub ao selecionar!
 
+#### **5.0. ⚠️ VERIFICAÇÃO CRÍTICA ANTES DE COMEÇAR**
+
+**VERIFIQUE O NOME DO REPOSITÓRIO no arquivo `scripts/github-image-uploader.js`:**
+
+```javascript
+// LINHA ~31 - DEVE SER O MESMO NOME DO REPOSITÓRIO DO BLOG!
+const IMAGE_REPO_NAME = 'NOME-DO-REPO-DO-CLIENTE';
+```
+
+**❌ ERRO COMUM:** Deixar `blog-images` quando o repo é outro nome!
+
+**Exemplo:**
+- Se o repo do cliente é: `mediagrowthmkt-debug/BLOG-XENON`
+- Então deve ser: `const IMAGE_REPO_NAME = 'BLOG-XENON';`
+
 #### **5.1. Gerar Token para o Cliente**
 
 1. Cliente acessa: https://github.com/settings/tokens
@@ -211,17 +256,18 @@ Edite: `assets/js/form-script.js`
 - [ ] Seleciona uma imagem do computador
 - [ ] Aguarda mensagem: **"Capa enviada!"** (verde)
 - [ ] URL do GitHub preenchida automaticamente
-- [ ] Verifica repositório `blog-images/posts/{slug}/` no GitHub
+- [ ] **Verifica no repositório** se a imagem está em `posts/{slug}/cover.jpg`
 
 **Estrutura de Pastas (v4.0):**
 ```
-blog-images/
-└── posts/
-    └── {slug-do-post}/
-        ├── avatar.jpg    ← Cada post tem seu avatar
-        ├── cover.jpg     ← Imagem de capa
-        └── image-{n}.jpg ← Imagens internas
+posts/
+└── {slug-do-post}/
+    ├── avatar.jpg    ← Cada post tem seu avatar
+    ├── cover.jpg     ← Imagem de capa
+    └── image-{n}.jpg ← Imagens internas
 ```
+
+**⚠️ Atenção:** As imagens ficam NO MESMO REPOSITÓRIO do blog (não em repo separado)!
 
 📖 **Guia completo:** [UPLOAD-IMAGENS-GUIDE.md](UPLOAD-IMAGENS-GUIDE.md)
 

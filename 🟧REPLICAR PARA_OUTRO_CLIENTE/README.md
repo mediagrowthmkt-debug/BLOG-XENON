@@ -6,7 +6,25 @@
 
 ---
 
-## 📚 GUIAS DISPONÍVEIS
+## ⚠️ LEIA PRIMEIRO!
+
+### � **[PROBLEMAS-CONHECIDOS-SOLUCOES.md](PROBLEMAS-CONHECIDOS-SOLUCOES.md)** ⭐ NOVO!
+**ESSENCIAL antes de começar qualquer implementação!**
+
+Lista de TODOS os problemas encontrados durante implementações anteriores:
+- ❌ Upload de imagens não funciona
+- ❌ Preview não abre / erro de sanitizeUrl
+- ❌ Layout do post sem margens
+- ❌ Logo não aparece
+- ❌ Links do Bloco 5 não aparecem
+- ❌ Vulnerabilidades de segurança XSS
+- ✅ **SOLUÇÕES TESTADAS para cada problema!**
+
+**👉 CONSULTE ESTE ARQUIVO SEMPRE QUE ENCONTRAR UM PROBLEMA!**
+
+---
+
+## �📚 GUIAS DISPONÍVEIS
 
 ### 🚀 **[GUIA-REPLICACAO-CLIENTE.md](GUIA-REPLICACAO-CLIENTE.md)**
 **Tempo:** 30-45 minutos | **Dificuldade:** ⭐⭐☆☆☆
@@ -84,6 +102,9 @@ Fluxogramas visuais do sistema:
 ### Para Configurar Novo Cliente:
 
 ```
+0. PROBLEMAS-CONHECIDOS-SOLUCOES.md ⚠️
+   └─► LEIA PRIMEIRO para evitar erros comuns!
+   
 1. GUIA-REPLICACAO-CLIENTE.md
    └─► Siga as 7 fases em ordem
    

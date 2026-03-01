@@ -1,8 +1,37 @@
 # 📤 GUIA COMPLETO - SISTEMA DE UPLOAD DE IMAGENS
 
-> **Sistema automatizado de upload IMEDIATO de imagens para GitHub com otimização e repositório dedicado**
+> **Sistema automatizado de upload IMEDIATO de imagens para GitHub com otimização**
 
 **⭐ VERSÃO 4.0 - UPLOAD IMEDIATO (01/03/2026)**
+
+---
+
+## ⚠️ AVISOS CRÍTICOS - LEIA ANTES DE IMPLEMENTAR!
+
+### 🔴 PROBLEMAS MAIS COMUNS
+
+| Problema | Causa | Solução |
+|----------|-------|---------|
+| Upload não funciona | Nome do repo errado | Verificar `IMAGE_REPO_NAME` |
+| Erro 404 no upload | Slug com `/` no início | Remover `/` em `getCurrentSlug()` |
+| Imagens não aparecem | Pasta não commitada | Commitar `assets/images/` |
+
+### ⚡ CONFIGURAÇÃO CRÍTICA
+
+No arquivo `scripts/github-image-uploader.js`, linha ~31:
+
+```javascript
+// ⚠️ DEVE SER O MESMO NOME DO REPOSITÓRIO DO BLOG!
+const IMAGE_REPO_NAME = 'NOME-DO-REPO-DO-CLIENTE';
+```
+
+**Exemplos:**
+- Repo `https://github.com/cliente/meu-blog` → `const IMAGE_REPO_NAME = 'meu-blog';`
+- Repo `https://github.com/empresa/BLOG-XENON` → `const IMAGE_REPO_NAME = 'BLOG-XENON';`
+
+**❌ NÃO USE:** `blog-images` (antigo sistema separado)
+
+📋 **Problemas completos:** [PROBLEMAS-CONHECIDOS-SOLUCOES.md](PROBLEMAS-CONHECIDOS-SOLUCOES.md)
 
 ---
 
@@ -40,7 +69,7 @@ AGORA (v4.0):
 ### **Funcionalidades**
 ✅ **Upload IMEDIATO** ao selecionar imagem (não espera publicação)  
 ✅ Otimização automática (resize + compressão)  
-✅ Repositório dedicado (`blog-images`) criado automaticamente  
+✅ Imagens ficam NO MESMO repositório do blog (pasta `posts/{slug}/`)  
 ✅ **Organização por POST** (cada post tem sua pasta)  
 ✅ Preview visual usa URL do GitHub (real)  
 ✅ Feedback de progresso em tempo real  
@@ -173,42 +202,52 @@ console.log(localStorage.getItem('github_token') ? '✅ Token configurado' : '�
 
 ## 📁 ESTRUTURA DE ARMAZENAMENTO
 
-### **v4.0 - Cada Post com Sua Pasta**
+### **v4.0 - Imagens NO MESMO Repositório do Blog**
 
-As imagens são organizadas POR POST no repositório `blog-images`:
+**⚠️ IMPORTANTE:** As imagens ficam NO MESMO repositório do blog, NÃO em repositório separado!
+
+As imagens são organizadas POR POST na pasta `posts/`:
 
 ```
-blog-images/
-└── posts/
-    ├── meu-primeiro-post/
-    │   ├── avatar.jpg        # Avatar do autor DESTE post
-    │   ├── cover.jpg         # Imagem de capa
-    │   ├── image-1.jpg       # 1ª imagem interna
-    │   ├── image-2.jpg       # 2ª imagem interna
-    │   └── image-3.jpg       # 3ª imagem interna
-    │
-    ├── segundo-post-legal/
-    │   ├── avatar.jpg        # Avatar (pode ser diferente!)
-    │   ├── cover.jpg
-    │   └── image-1.jpg
-    │
-    └── guia-completo-seo/
-        ├── avatar.jpg
-        ├── cover.jpg
-        └── image-1.jpg
+[REPOSITORIO-DO-BLOG]/
+├── assets/
+│   ├── images/
+│   │   └── logo-*.webp          # Logo (apenas 1)
+│   ├── css/
+│   └── js/
+├── posts/
+│   ├── index.html               # Lista de posts
+│   ├── meu-primeiro-post/       # ← Pasta de imagens DO POST
+│   │   ├── avatar.jpg           # Avatar do autor DESTE post
+│   │   ├── cover.jpg            # Imagem de capa
+│   │   ├── image-1.jpg          # 1ª imagem interna
+│   │   ├── image-2.jpg          # 2ª imagem interna
+│   │   └── image-3.jpg          # 3ª imagem interna
+│   │
+│   ├── meu-primeiro-post.html   # ← HTML do post
+│   │
+│   ├── segundo-post-legal/      
+│   │   ├── avatar.jpg           # Avatar (pode ser diferente!)
+│   │   ├── cover.jpg
+│   │   └── image-1.jpg
+│   │
+│   └── segundo-post-legal.html
+│
+├── postin.html
+└── index.html
 ```
 
 ### **URLs Geradas**
 
 ```
-https://raw.githubusercontent.com/{usuario}/blog-images/main/posts/{slug}/avatar.jpg
-https://raw.githubusercontent.com/{usuario}/blog-images/main/posts/{slug}/cover.jpg
-https://raw.githubusercontent.com/{usuario}/blog-images/main/posts/{slug}/image-1.jpg
+https://raw.githubusercontent.com/{usuario}/{REPO}/main/posts/{slug}/avatar.jpg
+https://raw.githubusercontent.com/{usuario}/{REPO}/main/posts/{slug}/cover.jpg
+https://raw.githubusercontent.com/{usuario}/{REPO}/main/posts/{slug}/image-1.jpg
 ```
 
-**Exemplo real:**
+**Exemplo real (BLOG-XENON):**
 ```
-https://raw.githubusercontent.com/mediagrowthmkt-debug/blog-images/main/posts/trafego-pago-empresas-guia-completo/cover.jpg
+https://raw.githubusercontent.com/mediagrowthmkt-debug/BLOG-XENON/main/posts/guia-completo-seo/cover.jpg
 ```
 
 ### **⚠️ IMPORTANTE: Slug é Obrigatório!**
