@@ -15,10 +15,10 @@
     <meta name="theme-color" content="#000000">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/webp" href="../assets/images/faviconmd.webp" sizes="32x32">
-    <link rel="apple-touch-icon" href="../assets/images/faviconmd.webp">
+    <link rel="icon" type="image/png" href="assets/images/favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="assets/images/favicon.png">
     
-    <title>Criar Novo Post - Blog MediaGrowth</title>
+    <title>Criar Novo Post - Blog Motel Xenon</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,8 +26,9 @@
     <link href="https://api.fontshare.com/v2/css?f[]=mazzard-h@400,700&f[]=mazzard-m@400,600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://api.fontshare.com/v2/css?f[]=mazzard-h@400,700&f[]=mazzard-m@400,600&display=swap" rel="stylesheet"></noscript>
     
-    <link rel="stylesheet" href="assets/css/form-style.css?v=1771364111">
-    <script src="scripts/github-api.js?v=1771364111" defer></script>
+    <link rel="stylesheet" href="assets/css/form-style.css?v=4001">
+    <script src="scripts/github-api.js?v=4003" defer></script>
+    <script src="scripts/github-image-uploader.js?v=4003" defer></script>
 </head>
 <body>
     <div class="container">
@@ -39,10 +40,10 @@
                 <span>Voltar ao Blog</span>
             </a>
             
-            <img src="../assets/images/logo-mediagrowth.webp" alt="MediaGrowth" class="form-logo" onerror="this.style.display='none'">
+            <img src="assets/images/logo-motel-xenon.png" alt="Motel Xenon" class="form-logo" onerror="this.style.display='none'">
             
             <h1>📝 Criar Novo Post</h1>
-            <p>Sistema de criação de posts otimizado para SEO - MediaGrowth</p>
+            <p>Sistema de criação de posts otimizado para SEO - Motel Xenon</p>
             
             <div class="header-buttons">
                 <button type="button" id="fillTestData" class="btn-test" title="Preencher com dados de teste">
@@ -164,10 +165,19 @@ Palavra-chave Principal: sua palavra-chave
 
                 <div class="form-group">
                     <label for="authorAvatar">Avatar do Autor (URL)</label>
-                    <input type="url" 
-                           id="authorAvatar" 
-                           name="authorAvatar" 
-                           placeholder="https://exemplo.com/avatar.jpg">
+                    <div class="upload-field-group">
+                        <input type="url" 
+                               id="authorAvatar" 
+                               name="authorAvatar" 
+                               placeholder="https://exemplo.com/avatar.jpg">
+                        <button type="button" id="uploadAvatarBtn" class="btn-upload" title="Upload de avatar para GitHub">
+                            📤 UPLOAD AVATAR
+                        </button>
+                        <input type="file" id="avatarUploadInput" accept="image/*" class="hidden" style="display: none;">
+                    </div>
+                    <span id="avatarUploadStatus" class="upload-status"></span>
+                    <img id="avatarPreview" src="" alt="Preview do avatar" class="image-preview" style="display: none; max-width: 100px; margin-top: 10px; border-radius: 50%;">
+                    <small class="field-info">⚡ v4.0: Upload IMEDIATO para GitHub ao selecionar imagem</small>
                 </div>
 
                 <div class="form-row">
@@ -261,17 +271,27 @@ Palavra-chave Principal: sua palavra-chave
             <!-- 🖼️ BLOCO 3: IMAGENS -->
             <section class="form-section">
                 <h2>🖼️ BLOCO 3: Imagens</h2>
+                <p class="section-description">⚡ <strong>v4.0 - Upload IMEDIATO:</strong> As imagens são enviadas para o GitHub imediatamente ao selecionar. Preencha o TÍTULO primeiro!</p>
+                <div id="imagesLoadedIndicator" class="images-indicator" style="display: none;"></div>
                 
                 <div class="form-group required">
                     <label for="coverImage">
                         URL da Imagem de Capa
                         <span class="tooltip">1200x630px - Nome do arquivo com keyword</span>
                     </label>
-                    <input type="url" 
-                           id="coverImage" 
-                           name="coverImage" 
-                           required
-                           placeholder="https://exemplo.com/instalacao-granito-cozinha.jpg">
+                    <div class="upload-field-group">
+                        <input type="url" 
+                               id="coverImage" 
+                               name="coverImage" 
+                               required
+                               placeholder="https://exemplo.com/instalacao-granito-cozinha.jpg">
+                        <button type="button" id="uploadCoverBtn" class="btn-upload" title="Upload de capa para GitHub">
+                            📤 UPLOAD CAPA
+                        </button>
+                        <input type="file" id="coverUploadInput" accept="image/*" class="hidden" style="display: none;">
+                    </div>
+                    <span id="coverImageUploadStatus" class="upload-status"></span>
+                    <img id="coverPreview" src="" alt="Preview da capa" class="image-preview" style="display: none; max-width: 300px; margin-top: 10px; border-radius: 8px;">
                 </div>
 
                 <div class="form-group required">
@@ -296,8 +316,8 @@ Palavra-chave Principal: sua palavra-chave
 
                 <div class="form-group">
                     <label>
-                        Imagens Internas (mínimo 2)
-                        <span class="tooltip">Cada uma com URL e Alt Text</span>
+                        Imagens Internas (até 3)
+                        <span class="tooltip">Cada uma com URL, Alt Text e botão de upload</span>
                     </label>
                     <div id="internalImagesContainer">
                         <div class="internal-image-item">
@@ -307,19 +327,14 @@ Palavra-chave Principal: sua palavra-chave
                             <input type="text" 
                                    name="internalImageAlt[]" 
                                    placeholder="Alt text descritivo">
+                            <button type="button" class="btn-upload-small btn-upload-internal" title="Upload para GitHub">📤</button>
+                            <input type="file" class="internal-image-upload hidden" accept="image/*" style="display: none;">
                             <button type="button" class="btn-remove">✕</button>
+                            <span class="internal-upload-status upload-status"></span>
                         </div>
                     </div>
                     <button type="button" id="addInternalImage" class="btn-secondary">+ Adicionar Imagem</button>
-                    
-                    <!-- PROMPTS DE IMAGEM GERADOS AUTOMATICAMENTE -->
-                    <div id="imagePromptsContainer" style="margin-top: 20px; display: none;">
-                        <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                            <span style="font-size: 0.9rem; color: #EB7A3D;">🎨 Prompts para gerar imagens (copie e cole na IA)</span>
-                            <button type="button" id="copyAllPrompts" class="btn-secondary" style="padding: 5px 12px; font-size: 0.8rem;">📋 Copiar Todos</button>
-                        </label>
-                        <div id="imagePromptsList" style="display: flex; flex-direction: column; gap: 10px;"></div>
-                    </div>
+                    <small class="field-info">💡 Layout automático: 1ª=FULL WIDTH, 2ª e 3ª=LEFT SIDE</small>
                 </div>
             </section>
 
@@ -506,7 +521,7 @@ Palavra-chave Principal: sua palavra-chave
                            id="campaignName" 
                            name="campaignName" 
                            required
-                           placeholder="Blog MediaGrowth - Instalação Granito">
+                           placeholder="Blog Motel Xenon - Promoção Especial">
                 </div>
 
                 <div class="form-group">
@@ -570,7 +585,8 @@ Palavra-chave Principal: sua palavra-chave
                     <input type="url" 
                            id="siteLogo" 
                            name="siteLogo" 
-                           placeholder="https://SEU-DOMINIO.com/logo.png">
+                           value="https://blogs.xenonmotel.com.br/assets/images/logo-motel-xenon.png"
+                           placeholder="https://blogs.xenonmotel.com.br/assets/images/logo-motel-xenon.png">
                 </div>
 
                 <div class="form-group">
@@ -891,6 +907,6 @@ Habilitar botões de compartilhamento? [Sim/Não]:</textarea>
         </div>
     </div>
 
-    <script src="assets/js/form-script.js?v=1771364111"></script>
+    <script src="assets/js/form-script.js?v=4006"></script>
 </body>
 </html>

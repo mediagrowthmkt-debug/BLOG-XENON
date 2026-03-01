@@ -1,8 +1,8 @@
 # 📚 DOCUMENTAÇÃO COMPLETA DO PROJETO
 ## Sistema de Blog MediaGrowth - Template Markdown
 
-**Data:** 22 de fevereiro de 2026  
-**Versão:** 2.0  
+**Data:** 01 de março de 2026  
+**Versão:** 4.0 (Upload Imediato)  
 **Repositório:** `mediagrowthmkt-debug/blog-template-md`
 
 ---
@@ -13,14 +13,17 @@
 2. [Arquitetura do Sistema](#arquitetura-do-sistema)
 3. [Fluxo de Trabalho Completo](#fluxo-de-trabalho-completo)
 4. [Estrutura de Arquivos](#estrutura-de-arquivos)
-5. [Páginas Principais](#páginas-principais)
+5. [Blocos do Formulário (postin.html)](#blocos-do-formulário)
 6. [Sistema de Imagens](#sistema-de-imagens)
-7. [Formulário de Captura de Leads](#formulário-de-captura-de-leads)
-8. [Posts Relacionados](#posts-relacionados)
-9. [SEO e Meta Tags](#seo-e-meta-tags)
-10. [Publicação no GitHub](#publicação-no-github)
-11. [Como Replicar para Outro Cliente](#como-replicar-para-outro-cliente)
-12. [Manutenção e Troubleshooting](#manutenção-e-troubleshooting)
+   - 📤 **[Upload Automático de Imagens](UPLOAD-IMAGENS-GUIDE.md)**
+7. [Sistema de Links (Bloco 5)](#sistema-de-links)
+8. [Formulário de Captura de Leads](#formulário-de-captura-de-leads)
+9. [Posts Relacionados](#posts-relacionados)
+10. [SEO e Meta Tags](#seo-e-meta-tags)
+11. [Auto-Save e Auto-Preenchimento](#auto-save-e-auto-preenchimento)
+12. [Publicação no GitHub](#publicação-no-github)
+13. [Como Replicar para Outro Cliente](#como-replicar-para-outro-cliente)
+14. [Manutenção e Troubleshooting](#manutenção-e-troubleshooting)
 
 ---
 
@@ -35,6 +38,7 @@ Este é um sistema completo de blog que funciona através do **GitHub Pages**, p
 ✅ **Interface Visual Intuitiva** - Formulário completo em `postin.html` para criar posts  
 ✅ **Preview em Tempo Real** - Visualização instantânea antes de publicar  
 ✅ **Publicação Automatizada** - Posts sobem direto para GitHub via API  
+✅ **Upload Imediato de Imagens** - Imagens vão para GitHub ao selecionar (v4.0)  
 ✅ **Sistema de Imagens Inteligente** - 3 layouts adaptativos (full/left/left)  
 ✅ **Formulário de Leads** - Captura de contatos com webhook integrado  
 ✅ **Posts Relacionados** - Sistema dinâmico que carrega automaticamente  
@@ -369,7 +373,148 @@ fetch(postsFolder)
 
 ---
 
-## 🖼️ SISTEMA DE IMAGENS
+## � BLOCOS DO FORMULÁRIO (postin.html)
+
+O formulário de criação de posts está dividido em **10 blocos** organizados logicamente:
+
+### **🤖 BLOCO 0: Auto-Preenchimento Inteligente**
+- Cole texto formatado de IA (ChatGPT, Claude, etc.)
+- Sistema identifica campos automaticamente
+- Preenche formulário com um clique
+
+### **🧱 BLOCO 1: Identidade do Post**
+- **Título H1** (obrigatório, max 60 caracteres)
+- **Slug/URL amigável** (gerado automaticamente do título)
+- **Categoria** (Guia, Tutorial, Blog, Vlog)
+- **Autor e Avatar** (com upload imediato v4.0)
+- **Tempo de leitura** (minutos)
+
+### **🧠 BLOCO 2: SEO Essencial**
+- **Meta Title** (para motores de busca)
+- **Meta Description** (resumo para Google)
+- **Palavra-chave principal**
+- **Open Graph** (imagem e descrição para redes sociais)
+
+### **🖼️ BLOCO 3: Imagens**
+- **Imagem de capa** (cover) com upload imediato
+- **Até 3 imagens internas** com layout automático
+- **Alt text e legendas** para cada imagem
+- **Prompts de IA** para documentação
+
+### **✍️ BLOCO 4: Conteúdo do Post**
+- **Introdução** (parágrafo de destaque)
+- **Corpo do conteúdo** (editor rich text)
+- **Conclusão** (CTA final)
+- Suporte a HTML, listas, headings
+
+### **🔗 BLOCO 5: Links (Rankeamento)**
+- **Até 5 links relacionados**
+- **Título e URL** para cada link
+- Aparecem em seção dedicada no post publicado
+- Fundamentais para SEO e autoridade do site
+
+### **🏷️ BLOCO 6: Tags e Organização**
+- **Hashtags do post** (separadas por vírgula)
+- **Data de publicação**
+- Organização e filtragem
+
+### **🚀 BLOCO 7: Formulário de Captação**
+- **Configuração do lead form** (nome, email, telefone)
+- **Webhook URL** para integração (Make.com, Zapier)
+- **Título e botão** personalizados
+- **Nome da campanha** para tracking
+
+### **⚙️ BLOCO 8: Configurações Avançadas**
+- **Schema.org** (dados estruturados)
+- **Canonical URL**
+- **Configuração de compartilhamento**
+- **Idioma do post** (PT/EN)
+
+### **🤖 BLOCO 9: Template para IA**
+- **Template pronto** para gerar conteúdo
+- Copia com um clique
+- Instruções formatadas para ChatGPT/Claude
+
+---
+
+## 🔗 SISTEMA DE LINKS (BLOCO 5)
+
+### Como Funciona
+
+O Bloco 5 permite adicionar até 5 links relacionados que aparecem no post publicado:
+
+```javascript
+// form-script.js - função generateLinksSection()
+function generateLinksSection(data) {
+    if (!data.links || data.links.length === 0) return '';
+    
+    let linksHtml = '<div class="related-links-section">';
+    linksHtml += '<h3>🔗 Links Relacionados</h3>';
+    linksHtml += '<ul class="related-links-list">';
+    
+    data.links.forEach(link => {
+        linksHtml += `<li><a href="${link.url}" target="_blank">${link.title}</a></li>`;
+    });
+    
+    linksHtml += '</ul></div>';
+    return linksHtml;
+}
+```
+
+### Coleta dos Links
+
+```javascript
+// Coleta links do DOM usando querySelectorAll
+const linkItems = document.querySelectorAll('.link-item');
+const links = [];
+
+linkItems.forEach(item => {
+    const title = item.querySelector('.link-title')?.value?.trim();
+    const url = item.querySelector('.link-url')?.value?.trim();
+    
+    if (title && url) {
+        links.push({ title, url });
+    }
+});
+```
+
+### Importância para SEO
+
+- ✅ Links externos aumentam autoridade
+- ✅ Links internos melhoram navegação
+- ✅ Seção dedicada destaca recursos
+- ✅ Aparecem tanto no preview quanto na produção
+
+---
+
+## �🖼️ SISTEMA DE IMAGENS
+
+### ⭐ Upload Imediato para GitHub (v4.0)
+
+A partir da v4.0, **todas as imagens são enviadas IMEDIATAMENTE para o GitHub** quando selecionadas, não mais no momento da publicação.
+
+**Fluxo de Upload:**
+```
+[Seleciona Imagem] → [Upload GitHub] → [URL preenchida] → [Pronto!]
+```
+
+**Estrutura de Pastas:**
+```
+blog-images/
+└── posts/
+    └── {slug-do-post}/
+        ├── avatar.jpg    ← Avatar do autor (400x400)
+        ├── cover.jpg     ← Imagem de capa (1200x630)
+        ├── image-1.jpg   ← 1ª imagem interna (1920x1080)
+        ├── image-2.jpg   ← 2ª imagem interna
+        └── image-3.jpg   ← 3ª imagem interna
+```
+
+**IMPORTANTE:** Preencha o TÍTULO antes de fazer upload das imagens!
+
+📤 **Guia Completo:** [UPLOAD-IMAGENS-GUIDE.md](UPLOAD-IMAGENS-GUIDE.md)
+
+---
 
 ### Conceito: Sistema de 3 Imagens Adaptativo
 
@@ -660,7 +805,72 @@ const dateFormatted = now.toLocaleDateString('pt-BR');
 
 ---
 
-## 🚀 PUBLICAÇÃO NO GITHUB
+## � AUTO-SAVE E AUTO-PREENCHIMENTO
+
+### Sistema de Auto-Save
+
+O formulário salva automaticamente no localStorage a cada alteração:
+
+```javascript
+// form-script.js - Sistema Auto-Save
+const AUTO_SAVE_KEY = 'blog_template_form_data';
+
+function saveFormToLocalStorage() {
+    const formData = {};
+    const form = document.getElementById('blogForm');
+    
+    form.querySelectorAll('input, textarea, select').forEach(field => {
+        if (field.type === 'file') return; // Não salva arquivos
+        
+        const fieldKey = field.id || field.name;
+        if (field.type === 'checkbox') {
+            formData[fieldKey] = field.checked;
+        } else {
+            formData[fieldKey] = field.value;
+        }
+    });
+    
+    localStorage.setItem(AUTO_SAVE_KEY, JSON.stringify(formData));
+}
+```
+
+**Funcionalidades:**
+- ✅ Salva automaticamente ao digitar
+- ✅ Recupera dados ao recarregar página
+- ✅ Indicador visual de "Salvando..."
+- ✅ Não salva inputs type="file" (segurança)
+- ✅ Botão para limpar dados salvos
+
+### Sistema de Auto-Preenchimento (Bloco 0)
+
+Permite colar texto formatado de IA e preencher automaticamente:
+
+```javascript
+// Regex para extrair campos do texto
+const patterns = {
+    'h1Title': /Title Principal.*?:\s*(.+)/i,
+    'slug': /Slug.*?:\s*(.+)/i,
+    'metaTitle': /Meta Title.*?:\s*(.+)/i,
+    'metaDescription': /Meta Description.*?:\s*(.+)/i,
+    'mainKeyword': /Palavra[- ]chave.*?:\s*(.+)/i,
+    // ... mais campos
+};
+```
+
+**Como usar:**
+1. Cole o texto formatado no Bloco 0
+2. Clique em "🚀 Preencher Automaticamente"
+3. Sistema identifica e preenche cada campo
+4. Revise e ajuste se necessário
+
+**Formatos suportados:**
+- Português e Inglês
+- Blocos separados por emoji ou texto
+- Campos com ":" como separador
+
+---
+
+## �🚀 PUBLICAÇÃO NO GITHUB
 
 ### Pré-requisitos
 

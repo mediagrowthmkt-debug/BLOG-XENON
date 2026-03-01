@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog - SUA EMPRESA</title>
-    <meta name="description" content="Artigos sobre bancadas de granito, quartzo e mármore em Miami">
+    <title>Blog - Motel Xenon</title>
+    <meta name="description" content="Artigos e novidades do Motel Xenon com dicas de experiências e romance">
     <style>
         * {
             margin: 0;
@@ -173,8 +173,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>📚 Blog SUA EMPRESA</h1>
-            <p>Artigos sobre bancadas de granito, quartzo e mármore</p>
+            <h1>📚 Blog Motel Xenon</h1>
+            <p>Dicas de romance, experiências e novidades do Motel Xenon</p>
         </header>
 
         <div id="postsContainer" class="posts-grid">
@@ -182,7 +182,7 @@
         </div>
 
         <footer>
-            <p>© 2026 <a href="https://SEU-DOMINIO.com" target="_blank">SUA EMPRESA</a> - Todos os direitos reservados</p>
+            <p>© 2026 <a href="https://www.xenonmotel.com.br" target="_blank">Motel Xenon</a> - Todos os direitos reservados</p>
         </footer>
     </div>
 
@@ -206,10 +206,6 @@
                     // TODO: Atualizar automaticamente quando novos posts forem criados
                     htmlFiles = [
                         {
-                            name: 'marble-or-granite-guide-for-your-home-in-worcester.html',
-                            download_url: 'marble-or-granite-guide-for-your-home-in-worcester.html'
-                        },
-                        {
                             name: 'window-replacement-massachusetts-guide.html',
                             download_url: 'window-replacement-massachusetts-guide.html'
                         }
@@ -217,7 +213,7 @@
                     console.log('📁 Posts locais:', htmlFiles.length);
                 } else {
                     // Modo GITHUB PAGES - Busca via API
-                    const response = await fetch('https://api.github.com/repos/mediagrowthmkt-debug/blog-template-md/contents/posts');
+                    const response = await fetch('https://api.github.com/repos/mediagrowthmkt-debug/BLOG-XENON/contents/posts');
                     
                     if (!response.ok) {
                         throw new Error('Erro ao buscar posts');
@@ -242,7 +238,7 @@
                     container.innerHTML = `
                         <div class="empty-state">
                             <h2>📝 Nenhum post publicado ainda</h2>
-                            <p>Em breve teremos conteúdos incríveis sobre granito, quartzo e mármore!</p>
+                            <p>Em breve teremos conteúdos incríveis sobre experiências e novidades do Motel Xenon!</p>
                         </div>
                     `;
                     return;
@@ -256,17 +252,25 @@
                 // Ordenar por data (mais recente primeiro)
                 posts.sort((a, b) => new Date(b.date) - new Date(a.date));
                 
-                // Renderizar posts
-                container.innerHTML = posts.map(post => createPostCard(post)).join('');
+                // Renderizar posts usando DOM API (seguro contra XSS)
+                container.textContent = ''; // Limpa de forma segura
+                posts.forEach(post => {
+                    const cardElement = createPostCardElement(post);
+                    container.appendChild(cardElement);
+                });
                 
             } catch (error) {
                 console.error('Erro ao carregar posts:', error);
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <h2>❌ Erro ao carregar posts</h2>
-                        <p>Tente recarregar a página</p>
-                    </div>
-                `;
+                container.textContent = '';
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'empty-state';
+                const errorH2 = document.createElement('h2');
+                errorH2.textContent = '❌ Erro ao carregar posts';
+                const errorP = document.createElement('p');
+                errorP.textContent = 'Tente recarregar a página';
+                errorDiv.appendChild(errorH2);
+                errorDiv.appendChild(errorP);
+                container.appendChild(errorDiv);
             }
         }
         
@@ -325,8 +329,8 @@
             }
         }
         
-        // Criar card do post
-        function createPostCard(post) {
+        // Criar card do post usando DOM API (seguro contra XSS)
+        function createPostCardElement(post) {
             const date = new Date(post.date);
             const formattedDate = date.toLocaleDateString('pt-BR', {
                 day: '2-digit',
@@ -334,20 +338,65 @@
                 year: 'numeric'
             });
             
-            return `
-                <a href="${post.url}" class="post-card">
-                    ${post.image ? `<img src="${post.image}" alt="${post.title}" class="post-image">` : '<div class="post-image"></div>'}
-                    <div class="post-content">
-                        <span class="post-category">${post.category}</span>
-                        <h2 class="post-title">${post.title}</h2>
-                        <p class="post-excerpt">${post.description}</p>
-                        <div class="post-meta">
-                            <span class="post-author">👤 ${post.author}</span>
-                            <span class="post-date">📅 ${formattedDate}</span>
-                        </div>
-                    </div>
-                </a>
-            `;
+            // Criar elementos com DOM API (não usa innerHTML para dados do usuário)
+            const card = document.createElement('a');
+            card.href = post.url || '#';
+            card.className = 'post-card';
+            
+            // Imagem
+            if (post.image) {
+                const img = document.createElement('img');
+                img.src = post.image;
+                img.alt = post.title || 'Imagem do post';
+                img.className = 'post-image';
+                img.onerror = function() { this.style.display = 'none'; };
+                card.appendChild(img);
+            } else {
+                const imgPlaceholder = document.createElement('div');
+                imgPlaceholder.className = 'post-image';
+                card.appendChild(imgPlaceholder);
+            }
+            
+            // Conteúdo
+            const content = document.createElement('div');
+            content.className = 'post-content';
+            
+            // Categoria
+            const category = document.createElement('span');
+            category.className = 'post-category';
+            category.textContent = post.category || 'Blog';
+            content.appendChild(category);
+            
+            // Título
+            const title = document.createElement('h2');
+            title.className = 'post-title';
+            title.textContent = post.title || 'Sem título';
+            content.appendChild(title);
+            
+            // Descrição
+            const excerpt = document.createElement('p');
+            excerpt.className = 'post-excerpt';
+            excerpt.textContent = post.description || '';
+            content.appendChild(excerpt);
+            
+            // Meta
+            const meta = document.createElement('div');
+            meta.className = 'post-meta';
+            
+            const author = document.createElement('span');
+            author.className = 'post-author';
+            author.textContent = '👤 ' + (post.author || 'Autor');
+            meta.appendChild(author);
+            
+            const dateSpan = document.createElement('span');
+            dateSpan.className = 'post-date';
+            dateSpan.textContent = '📅 ' + formattedDate;
+            meta.appendChild(dateSpan);
+            
+            content.appendChild(meta);
+            card.appendChild(content);
+            
+            return card;
         }
         
         // Carregar posts ao abrir a página

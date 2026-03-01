@@ -1,5 +1,5 @@
 // ========================================
-// BLOG INDEX - MediaGrowth
+// BLOG INDEX - Motel Xenon
 // ========================================
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -55,13 +55,12 @@ async function loadPosts() {
         if (isLocal) {
             // Modo LOCAL - Lista manual de posts
             htmlFiles = [
-                { name: 'marble-or-granite-guide-for-your-home-in-worcester.html' },
                 { name: 'window-replacement-massachusetts-guide.html' }
             ];
             console.log('📁 Posts locais:', htmlFiles.length);
         } else {
             // Modo GITHUB PAGES - Busca via API
-            const response = await fetch('https://api.github.com/repos/mediagrowthmkt-debug/blog-template-md/contents/posts');
+            const response = await fetch('https://api.github.com/repos/mediagrowthmkt-debug/BLOG-XENON/contents/posts');
             
             if (!response.ok) {
                 throw new Error('Erro ao buscar posts da API');
@@ -114,7 +113,7 @@ async function loadPostMetadata(url) {
         const image = doc.querySelector('meta[property="og:image"]')?.content || 
                      doc.querySelector('img')?.src || '';
         const category = doc.querySelector('meta[name="category"]')?.content || 'Geral';
-        const author = doc.querySelector('meta[name="author"]')?.content || 'MediaGrowth';
+    const author = doc.querySelector('meta[name="author"]')?.content || 'Motel Xenon';
         const dateStr = doc.querySelector('meta[name="publish-date"]')?.content || 
                        doc.querySelector('time')?.getAttribute('datetime') || 
                        new Date().toISOString();
@@ -138,31 +137,31 @@ function getExamplePosts() {
     // Example posts for testing
     return [
         {
-            title: 'Como Acelerar o Crescimento da Sua Empresa com Growth Marketing',
-            excerpt: 'Descubra as estratégias de growth marketing que estão transformando empresas e acelerando resultados de forma exponencial.',
-            image: '../assets/images/logo-mediagrowth.webp',
-            category: 'Growth',
-            author: 'MediaGrowth',
+            title: 'Experiências românticas que fazem a noite perfeita',
+            excerpt: 'Ideias e detalhes que transformam uma hospedagem no Motel Xenon em um momento inesquecível.',
+            image: 'assets/images/logo-motel-xenon.png',
+            category: 'Experiências',
+            author: 'Motel Xenon',
             date: '2026-02-15',
-            url: 'posts/marble-or-granite-guide-for-your-home-in-worcester.html'
+            url: 'posts/window-replacement-massachusetts-guide.html'
         },
         {
-            title: 'SEO em 2026: Estratégias Essenciais para Ranquear no Google',
-            excerpt: 'As melhores práticas de SEO atualizadas para garantir visibilidade orgânica e conquistar as primeiras posições.',
-            image: '../assets/images/logo-mediagrowth.webp',
-            category: 'SEO',
-            author: 'MediaGrowth',
+            title: 'Como planejar uma surpresa especial nas suítes',
+            excerpt: 'Dicas rápidas para criar uma atmosfera envolvente e aproveitar cada detalhe do Motel Xenon.',
+            image: 'assets/images/logo-motel-xenon.png',
+            category: 'Dicas',
+            author: 'Motel Xenon',
             date: '2026-02-10',
-            url: 'posts/marble-or-granite-guide-for-your-home-in-worcester.html'
+            url: 'posts/window-replacement-massachusetts-guide.html'
         },
         {
-            title: 'Automação de Marketing: Como Escalar Sem Perder Qualidade',
-            excerpt: 'Aprenda a implementar automações inteligentes que economizam tempo e aumentam a conversão dos seus leads.',
-            image: '../assets/images/logo-mediagrowth.webp',
-            category: 'Automação',
-            author: 'MediaGrowth',
+            title: 'Novidades e promoções: fique por dentro',
+            excerpt: 'Confira as novidades do Motel Xenon e descubra como aproveitar as melhores condições.',
+            image: 'assets/images/logo-motel-xenon.png',
+            category: 'Novidades',
+            author: 'Motel Xenon',
             date: '2026-02-05',
-            url: 'posts/marble-or-granite-guide-for-your-home-in-worcester.html'
+            url: 'posts/window-replacement-massachusetts-guide.html'
         }
     ];
 }
@@ -194,11 +193,14 @@ function setupCategoryFilter() {
     
     // Create category buttons
     const categoryFilter = document.getElementById('categoryFilter');
-    categoryFilter.innerHTML = categories.map(cat => `
-        <button class="category-btn ${cat === 'all' ? 'active' : ''}" data-category="${cat}">
-            ${cat === 'all' ? 'Todos' : cat}
-        </button>
-    `).join('');
+    categoryFilter.innerHTML = '';
+    categories.forEach(cat => {
+        const button = document.createElement('button');
+        button.className = `category-btn ${cat === 'all' ? 'active' : ''}`;
+        button.dataset.category = cat;
+        button.textContent = cat === 'all' ? 'Todos' : cat;
+        categoryFilter.appendChild(button);
+    });
     
     // Add click listeners
     categoryFilter.querySelectorAll('.category-btn').forEach(btn => {
@@ -250,31 +252,76 @@ function renderPosts() {
     emptyState.style.display = 'none';
     
     // Render posts
-    postsGrid.innerHTML = filteredPosts.map(post => createPostCard(post)).join('');
+    postsGrid.replaceChildren(...filteredPosts.map(post => createPostCard(post)));
 }
 
 function createPostCard(post) {
     const date = formatDate(post.date);
-    
-    return `
-        <a href="${post.url}" class="post-card">
-            <img src="${post.image}" alt="${post.title}" class="post-image" loading="lazy" onerror="this.src='../assets/images/logo-mediagrowth.webp'">
-            <div class="post-content">
-                <span class="post-category">${post.category}</span>
-                <h2 class="post-title">${post.title}</h2>
-                <p class="post-excerpt">${post.excerpt}</p>
-                <div class="post-meta">
-                    <span class="post-author">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        ${post.author}
-                    </span>
-                    <span class="post-date">${date}</span>
-                </div>
-            </div>
-        </a>
+    const safeTitle = escapeHtml(post.title);
+    const safeExcerpt = escapeHtml(post.excerpt);
+    const safeCategory = escapeHtml(post.category);
+    const safeAuthor = escapeHtml(post.author);
+    const safeUrl = sanitizeUrl(post.url);
+    const safeImage = sanitizeUrl(post.image || 'assets/images/logo-motel-xenon.png');
+
+    const card = document.createElement('a');
+    card.className = 'post-card';
+    card.href = safeUrl;
+
+    const image = document.createElement('img');
+    image.className = 'post-image';
+    image.loading = 'lazy';
+    image.src = safeImage;
+    image.alt = safeTitle;
+    image.onerror = () => {
+        image.src = 'assets/images/logo-motel-xenon.png';
+    };
+
+    const content = document.createElement('div');
+    content.className = 'post-content';
+
+    const category = document.createElement('span');
+    category.className = 'post-category';
+    category.textContent = safeCategory;
+
+    const title = document.createElement('h2');
+    title.className = 'post-title';
+    title.textContent = safeTitle;
+
+    const excerpt = document.createElement('p');
+    excerpt.className = 'post-excerpt';
+    excerpt.textContent = safeExcerpt;
+
+    const meta = document.createElement('div');
+    meta.className = 'post-meta';
+
+    const author = document.createElement('span');
+    author.className = 'post-author';
+    author.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
     `;
+    const authorName = document.createElement('span');
+    authorName.textContent = safeAuthor;
+    author.appendChild(authorName);
+
+    const postDate = document.createElement('span');
+    postDate.className = 'post-date';
+    postDate.textContent = date;
+
+    meta.appendChild(author);
+    meta.appendChild(postDate);
+
+    content.appendChild(category);
+    content.appendChild(title);
+    content.appendChild(excerpt);
+    content.appendChild(meta);
+
+    card.appendChild(image);
+    card.appendChild(content);
+
+    return card;
 }
 
 // ========================================
@@ -293,6 +340,34 @@ function showEmptyState() {
     
     postsGrid.innerHTML = '';
     emptyState.style.display = 'block';
+}
+
+function escapeHtml(value) {
+    if (value === null || value === undefined) return '';
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function sanitizeUrl(url) {
+    if (!url) return '#';
+    const trimmed = String(url).trim();
+    if (/^(\/(?!\/)|\.\/|\.\.\/)/.test(trimmed)) {
+        return trimmed;
+    }
+    try {
+        const parsed = new URL(trimmed);
+        const protocol = parsed.protocol.toLowerCase();
+        if (protocol === 'http:' || protocol === 'https:') {
+            return parsed.href;
+        }
+    } catch (error) {
+        return '#';
+    }
+    return '#';
 }
 
 // ========================================

@@ -1,5 +1,7 @@
 # 📊 FLUXOGRAMA VISUAL DO SISTEMA
 
+**⚡ Atualizado para v4.0 - Upload Imediato de Imagens (01/03/2026)**
+
 ## 🔄 FLUXO COMPLETO: CRIAÇÃO → PUBLICAÇÃO
 
 ```
@@ -12,13 +14,16 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                  PREENCHE FORMULÁRIO                             │
 │  ┌─────────────────────────────────────────────────────────┐   │
-│  │ ✍️  Informações Básicas (título, autor, categoria)      │   │
-│  │ 🖼️  Imagem de Capa                                       │   │
-│  │ 🎨  Imagens Internas (até 3)                            │   │
-│  │ 📝  Conteúdo (introdução, corpo, conclusão)             │   │
-│  │ 🎯  Lead Capture (opcional)                             │   │
-│  │ 📊  SEO & Meta Tags                                      │   │
-│  │ ⚙️  Configurações GitHub                                 │   │
+│  │ 🤖  BLOCO 0: Auto-Preenchimento (cola texto de IA)       │   │
+│  │ 🧱  BLOCO 1: Identidade (título, autor, categoria)       │   │
+│  │ 🧠  BLOCO 2: SEO Essencial (meta tags, keywords)         │   │
+│  │ 🖼️  BLOCO 3: Imagens (capa + até 3 internas)             │   │
+│  │ ✍️  BLOCO 4: Conteúdo (intro, corpo, conclusão)          │   │
+│  │ 🔗  BLOCO 5: Links (até 5 links relacionados)            │   │
+│  │ 🏷️  BLOCO 6: Tags e Organização                         │   │
+│  │ 🚀  BLOCO 7: Formulário de Captação (webhook)            │   │
+│  │ ⚙️  BLOCO 8: Configurações Avançadas                     │   │
+│  │ 🤖  BLOCO 9: Template para IA                            │   │
 │  └─────────────────────────────────────────────────────────┘   │
 └───────────────────────────┬─────────────────────────────────────┘
                             │
@@ -82,6 +87,132 @@
                           │  Tempo: 1-3 minutos      │
                           │  Status: Online          │
                           └──────────────────────────┘
+```
+
+---
+
+## 📤 FLUXO DE UPLOAD IMEDIATO DE IMAGENS (v4.0)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│               USUÁRIO SELECIONA IMAGEM                           │
+│          (Clica no botão "📤 UPLOAD")                           │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│   1. PREVIEW LOCAL INSTANTÂNEO                                   │
+│   ┌─────────────────────────────────────────────────────────┐   │
+│   │  var localPreview = URL.createObjectURL(file);          │   │
+│   │  previewElement.src = localPreview;                     │   │
+│   │  ➜ Usuário vê a imagem imediatamente!                   │   │
+│   └─────────────────────────────────────────────────────────┘   │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │ Paralelo
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│   2. CREDENCIAIS DO GITHUB                                       │
+│   ┌─────────────────────────────────────────────────────────┐   │
+│   │  Token: localStorage.getItem('github_token')            │   │
+│   │  Username: busca via API /user (se não cacheado)        │   │
+│   └─────────────────────────────────────────────────────────┘   │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│   3. VERIFICA/CRIA REPOSITÓRIO blog-images                       │
+│   ┌─────────────────────────────────────────────────────────┐   │
+│   │  GET /repos/{user}/blog-images                          │   │
+│   │  ├─ Existe? ✅ Continua                                 │   │
+│   │  └─ 404? POST /user/repos → Cria repositório            │   │
+│   └─────────────────────────────────────────────────────────┘   │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│   4. OTIMIZAÇÃO DA IMAGEM                                        │
+│   ┌─────────────────────────────────────────────────────────┐   │
+│   │  Canvas API → Resize + Compress                         │   │
+│   │  ├─ Avatar:  400x400,  90% quality                      │   │
+│   │  ├─ Cover:   1200x630, 85% quality                      │   │
+│   │  └─ Interna: 1920x1080, 85% quality                     │   │
+│   └─────────────────────────────────────────────────────────┘   │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│   5. UPLOAD PARA GITHUB (IMEDIATO!)                              │
+│   ┌─────────────────────────────────────────────────────────┐   │
+│   │  Slug do post: document.getElementById('slug').value    │   │
+│   │  Path: posts/{slug}/avatar.jpg                          │   │
+│   │        posts/{slug}/cover.jpg                           │   │
+│   │        posts/{slug}/image-{n}.jpg                       │   │
+│   │                                                         │   │
+│   │  PUT /repos/{user}/blog-images/contents/{path}          │   │
+│   │  Body: { message, content: base64, sha?: (se update) }  │   │
+│   └─────────────────────────────────────────────────────────┘   │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│   6. URL DO GITHUB PREENCHIDA                                    │
+│   ┌─────────────────────────────────────────────────────────┐   │
+│   │  URL: https://raw.githubusercontent.com/{user}/         │   │
+│   │       blog-images/main/posts/{slug}/cover.jpg           │   │
+│   │                                                         │   │
+│   │  input.value = githubUrl;                               │   │
+│   │  preview.src = githubUrl + '?t=' + Date.now();          │   │
+│   │  ➜ Preview agora usa URL REAL do GitHub!               │   │
+│   └─────────────────────────────────────────────────────────┘   │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│   ✅ IMAGEM JÁ ESTÁ NO GITHUB!                                   │
+│                                                                  │
+│   Quando post for publicado, a URL já estará correta!           │
+│   Não há processamento adicional de imagens no publish.         │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### **Estrutura de Pastas Criada (v4.0)**
+
+```
+blog-images/
+└── posts/
+    ├── meu-post-seo/
+    │   ├── avatar.jpg     ← Avatar DESTE post
+    │   ├── cover.jpg      ← Capa DESTE post
+    │   ├── image-1.jpg    ← 1ª interna
+    │   └── image-2.jpg    ← 2ª interna
+    │
+    └── outro-post/
+        ├── avatar.jpg     ← Avatar diferente (se quiser)
+        ├── cover.jpg
+        └── image-1.jpg
+```
+
+### **Comparação: Antes vs Agora**
+
+```
+ANTES (v1-v3):
+┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐
+│Seleciona│ →  │Armazena │ →  │Publicar │ →  │ Upload  │
+│ Imagem  │    │ Base64  │    │  Post   │    │ GitHub  │
+└─────────┘    └─────────┘    └─────────┘    └─────────┘
+                                                   ↑
+                              ❌ Problema: Podia falhar aqui
+                                 e post ficava sem imagens
+
+AGORA (v4.0):
+┌─────────┐    ┌─────────┐    ┌─────────┐
+│Seleciona│ →  │ Upload  │ →  │Publicar │
+│ Imagem  │    │ GitHub  │    │  Post   │
+└─────────┘    │ IMEDIATO│    │(URL já) │
+               └─────────┘    └─────────┘
+                    ↑
+          ✅ Imagem já está no GitHub!
+             Post usa URL definitiva.
 ```
 
 ---

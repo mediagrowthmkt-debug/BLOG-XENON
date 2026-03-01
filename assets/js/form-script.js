@@ -9,6 +9,37 @@
 const AUTO_SAVE_KEY = 'blog_template_form_data';
 let autoSaveTimeout = null;
 
+// ======================
+// UTILITY FUNCTIONS (Global)
+// ======================
+
+/**
+ * Sanitiza URLs para prevenir JavaScript injection
+ * @param {string} url 
+ * @returns {string}
+ */
+function sanitizeUrl(url) {
+    if (!url) return '';
+    const urlStr = String(url).trim();
+    const dangerousProtocols = /^(\s*)(javascript|data|vbscript|file|about):/i;
+    if (dangerousProtocols.test(urlStr)) return '';
+    return urlStr;
+}
+
+/**
+ * Sanitiza conteúdo HTML removendo scripts e eventos maliciosos
+ * @param {string} html 
+ * @returns {string}
+ */
+function sanitizeHtmlContent(html) {
+    if (!html) return '';
+    return html
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
+        .replace(/javascript:/gi, '')
+        .replace(/data:text\/html/gi, '');
+}
+
 // Salva os dados do formulário no LocalStorage
 function saveFormToLocalStorage() {
     const formData = {};
@@ -615,6 +646,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Editor toolbar buttons
     setupEditorToolbar();
+
+    // Image upload handlers (legado + v4.0)
+    setupLegacyImageUploadHandlers();
     
     // Preview button
     document.getElementById('previewBtn').addEventListener('click', showPreview);
@@ -631,21 +665,37 @@ document.addEventListener('DOMContentLoaded', function() {
 // ======================
 
 function setupDynamicFields() {
-    // Adicionar imagens internas
+    // Adicionar imagens internas (com botão de upload v4.0)
     document.getElementById('addInternalImage').addEventListener('click', function() {
         const container = document.getElementById('internalImagesContainer');
+        const currentItems = container.querySelectorAll('.internal-image-item').length;
+        
+        // Limita a 3 imagens internas
+        if (currentItems >= 3) {
+            alert('⚠️ Máximo de 3 imagens internas permitidas (Layout: FULL, LEFT, LEFT)');
+            return;
+        }
+        
         const newItem = document.createElement('div');
         newItem.className = 'internal-image-item';
         newItem.innerHTML = `
             <input type="url" name="internalImageUrl[]" placeholder="URL da imagem">
             <input type="text" name="internalImageAlt[]" placeholder="Alt text descritivo">
+            <button type="button" class="btn-upload-small btn-upload-internal" title="Upload para GitHub">📤</button>
+            <input type="file" class="internal-image-upload hidden" accept="image/*" style="display: none;">
             <button type="button" class="btn-remove">✕</button>
+            <span class="internal-upload-status upload-status"></span>
         `;
         container.appendChild(newItem);
         
         newItem.querySelector('.btn-remove').addEventListener('click', function() {
             newItem.remove();
         });
+        
+        // Configura handler de upload para o novo item
+        if (typeof window.setupImageUploadHandlers === 'function') {
+            window.setupImageUploadHandlers();
+        }
     });
     
     // Adicionar links internos
@@ -688,6 +738,154 @@ function setupDynamicFields() {
             this.parentElement.remove();
         });
     });
+}
+
+// ======================
+// IMAGE UPLOADS (GITHUB v4.0)
+// ======================
+
+function setupLegacyImageUploadHandlers() {
+    // Nota: Os handlers principais do v4.0 são configurados em github-image-uploader.js
+    // Este código mantém compatibilidade com o sistema antigo
+    
+    const coverUploadBtn = document.getElementById('uploadCoverImage');
+    const internalUploadBtn = document.getElementById('uploadInternalImages');
+
+    // Só configura se os elementos antigos existirem (compatibilidade)
+    if (coverUploadBtn) {
+        coverUploadBtn.addEventListener('click', handleCoverImageUpload);
+    }
+    if (internalUploadBtn) {
+        internalUploadBtn.addEventListener('click', handleInternalImagesUpload);
+    }
+    
+    // O script github-image-uploader.js já foi carregado e configurou os handlers v4.0
+    console.log('🖼️ Sistema legado de upload configurado');
+}
+
+async function handleCoverImageUpload() {
+    const fileInput = document.getElementById('coverImageFile');
+    const status = document.getElementById('coverImageUploadStatus');
+    const coverUrlInput = document.getElementById('coverImage');
+
+    if (!fileInput?.files?.length) {
+        return setUploadStatus(status, 'Selecione uma imagem para enviar.', 'error');
+    }
+
+    const publisher = window.initGitHubPublisher();
+    if (!publisher) {
+        return setUploadStatus(status, 'Configure o token do GitHub antes de enviar.', 'error');
+    }
+
+    const slug = getSlugForImages();
+    setUploadStatus(status, 'Enviando imagem de capa...', '');
+
+    try {
+        const result = await uploadFileToGitHub(publisher, fileInput.files[0], slug, 'capa', 0);
+        coverUrlInput.value = result.url;
+        setUploadStatus(status, '✅ Imagem enviada! URL preenchida automaticamente.', 'success');
+    } catch (error) {
+        console.error('Erro no upload da capa:', error);
+        setUploadStatus(status, '❌ Erro ao enviar imagem. Verifique o token e tente novamente.', 'error');
+    }
+}
+
+async function handleInternalImagesUpload() {
+    const fileInput = document.getElementById('internalImagesFiles');
+    const status = document.getElementById('internalImagesUploadStatus');
+
+    if (!fileInput?.files?.length) {
+        return setUploadStatus(status, 'Selecione uma ou mais imagens para enviar.', 'error');
+    }
+
+    const publisher = window.initGitHubPublisher();
+    if (!publisher) {
+        return setUploadStatus(status, 'Configure o token do GitHub antes de enviar.', 'error');
+    }
+
+    const slug = getSlugForImages();
+    setUploadStatus(status, 'Enviando imagens internas...', '');
+
+    try {
+        const uploads = [];
+        const files = Array.from(fileInput.files);
+
+        for (let i = 0; i < files.length; i++) {
+            uploads.push(uploadFileToGitHub(publisher, files[i], slug, 'interna', i));
+        }
+
+        const results = await Promise.all(uploads);
+        results.forEach((result, index) => {
+            const altText = buildAltFromFileName(files[index].name);
+            addInternalImageField(result.url, altText);
+        });
+
+        fileInput.value = '';
+        setUploadStatus(status, '✅ Imagens enviadas e adicionadas na lista.', 'success');
+    } catch (error) {
+        console.error('Erro no upload de imagens internas:', error);
+        setUploadStatus(status, '❌ Erro ao enviar imagens. Verifique o token e tente novamente.', 'error');
+    }
+}
+
+async function uploadFileToGitHub(publisher, file, slug, type, index) {
+    const base64Content = await readFileAsBase64(file);
+    const fileName = buildImageFileName(file, slug, type, index);
+    const folder = `images/uploads/${slug}`;
+
+    return publisher.uploadImage({
+        base64Content,
+        fileName,
+        folder
+    });
+}
+
+function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const result = reader.result;
+            if (typeof result !== 'string') {
+                reject(new Error('Falha ao ler o arquivo.'));
+                return;
+            }
+            const base64 = result.split(',')[1];
+            resolve(base64);
+        };
+        reader.onerror = () => reject(new Error('Erro ao ler arquivo.'));
+        reader.readAsDataURL(file);
+    });
+}
+
+function buildImageFileName(file, slug, type, index) {
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+    const safeSlug = (slug || 'imagem').toLowerCase().replace(/[^a-z0-9-]+/g, '-');
+    const safeType = (type || 'imagem').toLowerCase().replace(/[^a-z0-9-]+/g, '-');
+    const timestamp = Date.now();
+    return `${safeSlug}-${safeType}-${timestamp}-${index + 1}.${ext}`;
+}
+
+function buildAltFromFileName(fileName) {
+    return fileName
+        .replace(/\.[^/.]+$/, '')
+        .replace(/[-_]+/g, ' ')
+        .trim();
+}
+
+function getSlugForImages() {
+    const slugInput = document.getElementById('slug');
+    if (slugInput?.value) return slugInput.value;
+
+    const h1Title = document.getElementById('h1Title')?.value || '';
+    if (h1Title) return removeStopwords(generateSlug(h1Title));
+
+    return 'imagem';
+}
+
+function setUploadStatus(element, message, type) {
+    if (!element) return;
+    element.textContent = message;
+    element.className = `upload-status ${type || ''}`.trim();
 }
 
 // ======================
@@ -752,6 +950,10 @@ function showPreview() {
     console.log('🔗 URLs das imagens:', formData.internalImages?.map(img => img.url) || []);
     console.log('📦 Total de imagens:', formData.internalImages?.length || 0);
     
+    // Debug: mostra os links coletados
+    console.log('🔗 Links Internos:', formData.internalLinks);
+    console.log('🔗 Links Externos:', formData.externalLinks);
+    
     const previewHtml = generateFullPreviewPage(formData);
     
     // Open preview in new window
@@ -808,13 +1010,85 @@ function generateLeadFormHtml(data) {
     return `
         <!-- LEAD CAPTURE FORM - MINIMALISTA -->
         <section style="margin: 50px 0; padding: 35px 25px; background: rgba(235, 122, 61, 0.08); border-radius: 16px; text-align: center;">
-            <h3 style="font-size: 1.5rem; color: #EB7A3D; margin: 0 0 25px 0; font-weight: 600;">${i18n.title}</h3>
+            <h3 style="font-size: 1.5rem; color: #d91518; margin: 0 0 25px 0; font-weight: 600;">${i18n.title}</h3>
             <form id="leadCaptureForm" data-webhook="${data.webhookUrl || ''}" style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; max-width: 600px; margin: 0 auto;">
                 ${formFields}
-                <button type="submit" style="padding: 14px 28px; background: #EB7A3D; color: #fff; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; white-space: nowrap;">${i18n.button}</button>
+                <button type="submit" style="padding: 14px 28px; background: #d91518; color: #fff; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; white-space: nowrap;">${i18n.button}</button>
             </form>
             <div id="formMessage" style="margin-top: 15px; font-size: 0.9rem; display: none;"></div>
         </section>`;
+}
+
+/**
+ * Gera HTML para links internos e externos (Bloco 5)
+ * @param {Object} data 
+ * @returns {string}
+ */
+function generateLinksHtml(data) {
+    const hasInternalLinks = data.internalLinks && data.internalLinks.length > 0;
+    const hasExternalLinks = data.externalLinks && data.externalLinks.length > 0;
+    
+    if (!hasInternalLinks && !hasExternalLinks) {
+        return '';
+    }
+    
+    // Detecta idioma
+    const contentText = (data.h1Title || '') + ' ' + (data.contentBody || '');
+    const isEnglish = /\b(the|and|for|with|your|home|how|what|why|best|guide|tips)\b/i.test(contentText);
+    
+    let linksHtml = `
+        <!-- LINKS SECTION (Bloco 5) -->
+        <section class="post-links" style="margin: 40px 0; padding: 30px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">`;
+    
+    // Links Internos
+    if (hasInternalLinks) {
+        linksHtml += `
+            <div class="internal-links" style="margin-bottom: ${hasExternalLinks ? '25px' : '0'};">
+                <h3 style="font-size: 1.2rem; color: #d91518; margin: 0 0 15px 0; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.4rem;">📌</span> ${isEnglish ? 'Read Also' : 'Leia Também'}
+                </h3>
+                <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px;">
+                    ${data.internalLinks.map(link => `
+                        <li>
+                            <a href="${sanitizeUrl(link.url)}" 
+                               style="color: #eb7a3d; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 8px 0; transition: color 0.2s;">
+                                <span style="color: rgba(255,255,255,0.4);">→</span>
+                                ${escapeHtml(link.anchor || link.url)}
+                            </a>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>`;
+    }
+    
+    // Links Externos
+    if (hasExternalLinks) {
+        linksHtml += `
+            <div class="external-links">
+                <h3 style="font-size: 1.2rem; color: #d91518; margin: 0 0 15px 0; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.4rem;">🔗</span> ${isEnglish ? 'External Resources' : 'Recursos Externos'}
+                </h3>
+                <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px;">
+                    ${data.externalLinks.map(link => `
+                        <li>
+                            <a href="${sanitizeUrl(link.url)}" 
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               style="color: #eb7a3d; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 8px 0; transition: color 0.2s;">
+                                <span style="color: rgba(255,255,255,0.4);">↗</span>
+                                ${escapeHtml(link.anchor || link.url)}
+                                <span style="font-size: 0.8rem; color: rgba(255,255,255,0.3);">(${isEnglish ? 'external' : 'externo'})</span>
+                            </a>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>`;
+    }
+    
+    linksHtml += `
+        </section>`;
+    
+    return linksHtml;
 }
 
 function generateFullPreviewPage(data) {
@@ -934,7 +1208,7 @@ function generateFullPreviewPage(data) {
         .category-badge {
             display: inline-block;
             padding: 6px 16px;
-            background: #EB7A3D;
+            background: #d91518;
             color: #fff;
             border-radius: 20px;
             font-size: 0.85rem;
@@ -983,7 +1257,7 @@ function generateFullPreviewPage(data) {
         .content h2 {
             font-family: 'Mazzard H', sans-serif;
             font-size: 2rem;
-            color: #EB7A3D;
+            color: #d91518;
             margin-top: 40px;
             margin-bottom: 20px;
             clear: both;
@@ -1135,7 +1409,7 @@ function generateFullPreviewPage(data) {
             display: inline-block;
             padding: 6px 14px;
             background: rgba(235, 122, 61, 0.15);
-            color: #EB7A3D;
+            color: #d91518;
             border: 1px solid rgba(235, 122, 61, 0.3);
             border-radius: 20px;
             font-size: 0.85rem;
@@ -1190,7 +1464,7 @@ function generateFullPreviewPage(data) {
             transition: color 0.3s ease;
         }
         .header-nav a:hover {
-            color: #EB7A3D;
+            color: #d91518;
         }
         
         /* Footer com Logo */
@@ -1222,7 +1496,7 @@ function generateFullPreviewPage(data) {
             margin-bottom: 20px;
         }
         .footer-love {
-            color: #EB7A3D;
+            color: #d91518;
         }
         .footer-copyright {
             color: rgba(255, 255, 255, 0.4);
@@ -1246,10 +1520,10 @@ function generateFullPreviewPage(data) {
     <!-- HEADER -->
     <header class="site-header">
         <div class="header-container">
-            <img src="../assets/images/logo-mediagrowth.webp" alt="MediaGrowth" class="header-logo">
+            <img src="${sanitizeUrl(data.siteLogo) || 'https://blogs.xenonmotel.com.br/assets/images/logo-motel-xenon.png'}" alt="Motel Xenon" class="header-logo">
             <nav class="header-nav">
-                <a href="https://mediagrowth.com.br">Site Oficial</a>
-                <a href="https://blogs.mediagrowth.com.br">Ver Todos os Blogs</a>
+                <a href="https://www.xenonmotel.com.br">Site Oficial</a>
+                <a href="https://blogs.xenonmotel.com.br">Ver Todos os Blogs</a>
             </nav>
         </div>
     </header>
@@ -1307,6 +1581,8 @@ function generateFullPreviewPage(data) {
             ${data.conclusion || '<p>Conclusão do post...</p>'}
         </div>
         
+        ${generateLinksHtml(data)}
+        
         ${generateLeadFormHtml(data)}
 
         <!-- TAGS -->
@@ -1329,10 +1605,10 @@ function generateFullPreviewPage(data) {
     <!-- FOOTER -->
     <footer class="site-footer">
         <div class="footer-container">
-            <img src="../assets/images/logo-mediagrowth.webp" alt="MediaGrowth" class="footer-logo">
-            <p class="footer-tagline">Blog desenvolvido pela MediaGrowth</p>
+            <img src="${sanitizeUrl(data.siteLogo) || 'https://blogs.xenonmotel.com.br/assets/images/logo-motel-xenon.png'}" alt="Motel Xenon" class="footer-logo">
+            <p class="footer-tagline">Blog do Motel Xenon</p>
             <p class="footer-subtitle">Feito com <span class="footer-love">♥</span> e tecnologia</p>
-            <p class="footer-copyright">© ${new Date().getFullYear()} MediaGrowth. Todos os direitos reservados.</p>
+            <p class="footer-copyright">© ${new Date().getFullYear()} Motel Xenon. Todos os direitos reservados.</p>
         </div>
     </footer>
 
@@ -1608,7 +1884,7 @@ function collectFormData() {
         
         // Bloco 8
         siteUrl: siteUrl,
-        siteLogo: formData.get('siteLogo') || `${siteUrl}/logo.png`,
+    siteLogo: formData.get('siteLogo') || 'https://blogs.xenonmotel.com.br/assets/images/logo-motel-xenon.png',
         enableComments: formData.get('enableComments') === 'on',
         enableShare: formData.get('enableShare') === 'on',
         
@@ -1622,24 +1898,7 @@ function collectFormData() {
 async function generatePostHtml(data) {
     console.log('📥 Gerando HTML do post (mesmo formato do preview)...');
     
-    // Sanitiza URLs para prevenir JavaScript injection
-    const sanitizeUrl = (url) => {
-        if (!url) return '';
-        const urlStr = String(url).trim();
-        const dangerousProtocols = /^(\s*)(javascript|data|vbscript|file|about):/i;
-        if (dangerousProtocols.test(urlStr)) return '';
-        return urlStr;
-    };
-    
-    // Sanitiza conteúdo HTML
-    const sanitizeHtmlContent = (html) => {
-        if (!html) return '';
-        return html
-            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-            .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
-            .replace(/javascript:/gi, '')
-            .replace(/data:text\/html/gi, '');
-    };
+    // Nota: sanitizeUrl e sanitizeHtmlContent são funções globais definidas no topo do arquivo
     
     // Processa o conteúdo e distribui as imagens ao longo dele
     let contentWithImages = sanitizeHtmlContent(data.contentBody) || '<p>Conteúdo do post...</p>';
@@ -1756,13 +2015,13 @@ async function generatePostHtml(data) {
     const leadFormHtml = showLeadForm ? `
         <!-- LEAD CAPTURE FORM - MINIMALISTA -->
         <section class="lead-capture-section" style="margin: 50px 0; padding: 35px 25px; background: rgba(235, 122, 61, 0.08); border-radius: 16px; text-align: center;">
-            <h3 style="font-size: 1.5rem; color: #EB7A3D; margin: 0 0 25px 0; font-weight: 600;">${escapeHtml(i18n.title)}</h3>
+            <h3 style="font-size: 1.5rem; color: #d91518; margin: 0 0 25px 0; font-weight: 600;">${escapeHtml(i18n.title)}</h3>
             
             <form id="leadCaptureForm" data-webhook="${sanitizeUrl(data.webhookUrl || '')}" style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; max-width: 600px; margin: 0 auto;">
                 ${data.formCollectName ? `<input type="text" name="name" placeholder="${escapeHtml(i18n.name)}" required style="flex: 1; min-width: 150px; padding: 14px 16px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; font-size: 0.95rem;">` : ''}
                 ${data.formCollectEmail ? `<input type="email" name="email" placeholder="${escapeHtml(i18n.email)}" required style="flex: 1; min-width: 180px; padding: 14px 16px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; font-size: 0.95rem;">` : ''}
                 ${data.formCollectPhone ? `<input type="tel" name="phone" placeholder="${escapeHtml(i18n.phone)}" required style="flex: 1; min-width: 140px; padding: 14px 16px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; font-size: 0.95rem;">` : ''}
-                <button type="submit" style="padding: 14px 28px; background: #EB7A3D; color: #fff; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; white-space: nowrap;">${escapeHtml(i18n.button)}</button>
+                <button type="submit" style="padding: 14px 28px; background: #d91518; color: #fff; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; white-space: nowrap;">${escapeHtml(i18n.button)}</button>
             </form>
             <div id="formMessage" style="margin-top: 15px; font-size: 0.9rem; display: none;"></div>
         </section>
@@ -1853,7 +2112,7 @@ async function generatePostHtml(data) {
         "author": { "@type": "Person", "name": "${escapeHtml(data.author)}" },
         "publisher": {
             "@type": "Organization",
-            "name": "MediaGrowth",
+            "name": "Motel Xenon",
             "logo": { "@type": "ImageObject", "url": "${sanitizeUrl(data.siteLogo)}" }
         },
         "datePublished": "${data.datePublishedISO}",
@@ -1867,10 +2126,268 @@ async function generatePostHtml(data) {
     <link rel="stylesheet" href="../assets/css/blog-post.css">
     
     <!-- FAVICON -->
-    <link rel="icon" type="image/webp" href="../assets/images/faviconmd.webp">
+    <link rel="icon" type="image/png" href="../assets/images/favicon.png">
     
     <style>
-        /* Estilos adicionais para imagens dinâmicas e formulário */
+        /* RESET & BASE - Estilos essenciais inline */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.7;
+        }
+        
+        /* ARTICLE CONTAINER - Layout principal */
+        .blog-post {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 0 30px;
+        }
+        
+        /* POST HEADER */
+        .post-header {
+            margin-bottom: 50px;
+        }
+        
+        .post-meta-top {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: #d91518;
+            color: #fff;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .read-time {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+        
+        .post-title {
+            font-size: 2.8rem;
+            line-height: 1.2;
+            color: #ffffff;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+        
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .author-name {
+            display: block;
+            font-weight: 600;
+            color: #eb7a3d;
+            font-size: 1rem;
+        }
+        
+        .publish-date {
+            display: block;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+        
+        /* COVER IMAGE */
+        .post-cover {
+            margin-bottom: 40px;
+        }
+        
+        .post-cover img {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            border-radius: 16px;
+        }
+        
+        .post-cover figcaption {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            margin-top: 15px;
+            font-style: italic;
+        }
+        
+        /* CONTENT */
+        .post-intro,
+        .post-content,
+        .post-conclusion {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .post-intro {
+            margin-bottom: 40px;
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.85);
+            border-left: 4px solid #eb7a3d;
+            padding-left: 25px;
+        }
+        
+        .post-content {
+            margin-bottom: 40px;
+        }
+        
+        .post-content h2 {
+            font-size: 1.8rem;
+            margin: 50px 0 20px;
+            color: #ffffff;
+            font-weight: 700;
+        }
+        
+        .post-content h3 {
+            font-size: 1.4rem;
+            margin: 35px 0 15px;
+            color: #eb7a3d;
+            font-weight: 600;
+        }
+        
+        .post-content p {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+        
+        .post-content ul,
+        .post-content ol {
+            margin: 20px 0;
+            padding-left: 30px;
+        }
+        
+        .post-content li {
+            margin-bottom: 10px;
+        }
+        
+        .post-conclusion {
+            margin-top: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            border-left: 4px solid #d91518;
+        }
+        
+        /* TAGS */
+        .post-footer {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 5px 12px;
+            background: rgba(235, 122, 61, 0.15);
+            color: #eb7a3d;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+        
+        /* RELATED POSTS */
+        .related-posts {
+            max-width: 900px;
+            margin: 80px auto 0;
+            padding: 0 30px;
+        }
+        
+        .related-posts h2 {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            color: #ffffff;
+        }
+        
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        
+        /* SHARE BUTTON */
+        .share-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid rgba(217, 21, 24, 0.5);
+            color: #d91518;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .share-btn:hover {
+            background: #d91518;
+            color: #fff;
+        }
+        
+        /* BACK TO TOP */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: #d91518;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
         
         /* Container para imagens laterais - NÃO faz clear */
         .image-container {
@@ -1975,7 +2492,7 @@ async function generatePostHtml(data) {
         }
         .lead-capture-title {
             font-size: 1.8rem;
-            color: #EB7A3D;
+            color: #d91518;
             margin-bottom: 10px;
         }
         .lead-capture-subtitle {
@@ -2004,7 +2521,7 @@ async function generatePostHtml(data) {
         }
         .lead-capture-form input:focus {
             outline: none;
-            border-color: #EB7A3D;
+            border-color: #d91518;
             background: rgba(255, 255, 255, 0.1);
         }
         .lead-capture-form input::placeholder {
@@ -2013,7 +2530,7 @@ async function generatePostHtml(data) {
         .lead-capture-button {
             width: 100%;
             padding: 16px 32px;
-            background: linear-gradient(135deg, #EB7A3D 0%, #d4692e 100%);
+            background: linear-gradient(135deg, #d91518 0%, #bd1313 100%);
             color: #fff;
             border: none;
             border-radius: 10px;
@@ -2084,7 +2601,7 @@ async function generatePostHtml(data) {
             transition: color 0.3s ease;
         }
         .header-nav a:hover {
-            color: #EB7A3D;
+            color: #d91518;
         }
         
         /* Footer com Logo */
@@ -2116,7 +2633,7 @@ async function generatePostHtml(data) {
             margin-bottom: 20px;
         }
         .footer-love {
-            color: #EB7A3D;
+            color: #d91518;
         }
         .footer-copyright {
             color: rgba(255, 255, 255, 0.4);
@@ -2140,10 +2657,10 @@ async function generatePostHtml(data) {
     <!-- HEADER -->
     <header class="site-header">
         <div class="header-container">
-            <img src="../assets/images/logo-mediagrowth.webp" alt="MediaGrowth" class="header-logo">
+            <img src="${sanitizeUrl(data.siteLogo) || 'https://blogs.xenonmotel.com.br/assets/images/logo-motel-xenon.png'}" alt="Motel Xenon" class="header-logo">
             <nav class="header-nav">
-                <a href="https://mediagrowth.com.br">Site Oficial</a>
-                <a href="https://blogs.mediagrowth.com.br">Ver Todos os Blogs</a>
+                <a href="https://www.xenonmotel.com.br">Site Oficial</a>
+                <a href="https://blogs.xenonmotel.com.br">Ver Todos os Blogs</a>
             </nav>
         </div>
     </header>
@@ -2200,6 +2717,8 @@ async function generatePostHtml(data) {
             ${sanitizeHtmlContent(data.conclusion) || '<p>Conclusão do post...</p>'}
         </div>
         
+        ${generateLinksHtml(data)}
+        
         ${leadFormHtml}
 
         <!-- TAGS -->
@@ -2222,10 +2741,10 @@ async function generatePostHtml(data) {
     <!-- FOOTER -->
     <footer class="site-footer">
         <div class="footer-container">
-            <img src="../assets/images/logo-mediagrowth.webp" alt="MediaGrowth" class="footer-logo">
-            <p class="footer-tagline">Blog desenvolvido pela MediaGrowth</p>
+            <img src="${sanitizeUrl(data.siteLogo) || 'https://blogs.xenonmotel.com.br/assets/images/logo-motel-xenon.png'}" alt="Motel Xenon" class="footer-logo">
+            <p class="footer-tagline">Blog do Motel Xenon</p>
             <p class="footer-subtitle">Feito com <span class="footer-love">♥</span> e tecnologia</p>
-            <p class="footer-copyright">© ${new Date().getFullYear()} MediaGrowth. Todos os direitos reservados.</p>
+            <p class="footer-copyright">© ${new Date().getFullYear()} Motel Xenon. Todos os direitos reservados.</p>
         </div>
     </footer>
 
@@ -3129,7 +3648,7 @@ function generateImagePrompts() {
         <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                 <span style="font-weight: 600; color: #fff; font-size: 0.85rem;">${p.label}</span>
-                <button type="button" class="copy-prompt-btn" data-prompt="${i}" style="padding: 4px 10px; font-size: 0.75rem; background: #EB7A3D; color: #fff; border: none; border-radius: 4px; cursor: pointer;">📋 Copy</button>
+                <button type="button" class="copy-prompt-btn" data-prompt="${i}" style="padding: 4px 10px; font-size: 0.75rem; background: #d91518; color: #fff; border: none; border-radius: 4px; cursor: pointer;">📋 Copy</button>
             </div>
             <textarea readonly style="width: 100%; min-height: 60px; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: rgba(255,255,255,0.8); font-size: 0.85rem; resize: vertical; font-family: inherit;">${p.prompt}</textarea>
         </div>

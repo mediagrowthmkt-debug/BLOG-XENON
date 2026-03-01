@@ -1,6 +1,9 @@
 /**
- * GitHub API Integration
+ * GitHub API Integration v4.0
  * Salva posts automaticamente no repositório via API
+ * 
+ * Sistema atualizado para v4.0 - Upload Imediato de Imagens
+ * @date 01/03/2026
  */
 
 class GitHubBlogPublisher {
@@ -129,7 +132,57 @@ class GitHubBlogPublisher {
      */
     getPublicUrl(slug) {
         // GitHub Pages URL dinâmica baseada no repositório
-        return `https://${this.owner}.github.io/${this.repo}/posts/${slug}.html`;
+        return `https://blogs.xenonmotel.com.br/posts/${slug}.html`;
+    }
+
+    /**
+     * Upload de imagem para o GitHub
+     */
+    async uploadImage({ base64Content, fileName, folder = 'images/uploads' }) {
+        const safeFolder = folder.replace(/^\/+|\/+$/g, '');
+        const path = `${safeFolder}/${fileName}`;
+        const message = `Upload image: ${fileName}`;
+
+        try {
+            const existingFile = await this.getFile(path);
+            const url = `https://api.github.com/repos/${this.owner}/${this.repo}/contents/${path}`;
+            const payload = {
+                message: message,
+                content: base64Content,
+                branch: this.branch
+            };
+
+            if (existingFile?.sha) {
+                payload.sha = existingFile.sha;
+            }
+
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: this.getHeaders(),
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(`GitHub API error: ${error.message}`);
+            }
+
+            return {
+                path,
+                url: this.getPublicAssetUrl(path)
+            };
+        } catch (error) {
+            console.error('Erro ao enviar imagem para o GitHub:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * URL pública para assets no GitHub Pages
+     */
+    getPublicAssetUrl(path) {
+        const safePath = path.replace(/^\/+/, '');
+        return `https://blogs.xenonmotel.com.br/${safePath}`;
     }
 }
 
@@ -152,7 +205,7 @@ function initGitHubPublisher() {
     // Detecta automaticamente owner e repo do repositório atual
     return new GitHubBlogPublisher({
         owner: 'mediagrowthmkt-debug',
-        repo: 'blog-template-md',
+        repo: 'BLOG-XENON',
         token: token,
         branch: 'main'
     });

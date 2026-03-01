@@ -1,8 +1,8 @@
 # ❓ FAQ & TROUBLESHOOTING COMPLETO
 
 **Sistema de Blog MediaGrowth**  
-**Versão:** 2.0  
-**Data:** 22 de fevereiro de 2026
+**Versão:** 4.0 (Upload Imediato)  
+**Data:** 01 de março de 2026
 
 ---
 
@@ -74,22 +74,39 @@ A: Via GitHub: vá em posts/, clique no arquivo, delete. Ou via Git local.
 ### Imagens
 
 **Q: Onde hospedar minhas imagens?**  
-A: Google Drive (recomendado), Imgur, Cloudinary, ou servidor próprio.
+A: **RECOMENDADO:** Use o botão "📤 UPLOAD" para enviar diretamente para GitHub! Também funciona: Google Drive, Imgur, Cloudinary.
+
+**Q: Como funciona o upload de imagens na v4.0?**  
+A: Ao clicar em "📤 UPLOAD" e selecionar uma imagem, ela é enviada **IMEDIATAMENTE** para o GitHub (repositório `blog-images`). Não espera a publicação do post!
+
+**Q: Preciso preencher o título antes de fazer upload?**  
+A: **SIM!** O sistema usa o slug (gerado do título) para organizar as imagens. Sem slug, todas vão para pasta "post".
+
+**Q: Avatar é compartilhado entre posts?**  
+A: **NÃO na v4.0!** Cada post tem sua própria pasta com seu próprio avatar: `posts/{slug}/avatar.jpg`. Isso evita que um post sobrescreva avatar de outro.
+
+**Q: Onde ficam as imagens no GitHub?**  
+A: No repositório `blog-images`, organizado por post:
+```
+blog-images/posts/{slug}/avatar.jpg
+blog-images/posts/{slug}/cover.jpg
+blog-images/posts/{slug}/image-1.jpg
+```
 
 **Q: Tamanho máximo de imagem?**  
-A: Recomendado: até 300KB. Máximo técnico: ~10MB (mas não recomendado).
+A: 10MB por arquivo. Sistema otimiza automaticamente para web.
 
 **Q: Posso usar GIFs?**  
-A: Sim! Qualquer formato: JPG, PNG, GIF, WebP, SVG.
+A: Sim! Qualquer formato: JPG, PNG, GIF, WebP. Sistema converte para JPEG otimizado.
 
 **Q: Como comprimir imagens?**  
-A: Use TinyPNG (tinypng.com) ou Squoosh (squoosh.app).
+A: Sistema faz automaticamente! Avatar: 400x400, Capa: 1200x630, Internas: 1920x1080.
 
 **Q: Imagens do Google Drive funcionam?**  
-A: Sim! Sistema converte automaticamente. Arquivo deve ser "Qualquer um com link".
+A: Sim! Mas recomendamos usar o upload direto para evitar problemas de permissão.
 
 **Q: Quantas imagens por post?**  
-A: 1 capa + até 3 internas = 4 total. Mais pode deixar lento.
+A: 1 avatar + 1 capa + até 3 internas = 5 total por post.
 
 ---
 
@@ -150,6 +167,41 @@ A: Sim! Para gerenciar arquivos localmente. Mas não é necessário.
 
 **Q: Repositório privado funciona?**  
 A: Sim! GitHub Pages funciona em repos privados também.
+
+---
+
+### Links (Bloco 5)
+
+**Q: Para que servem os links do Bloco 5?**  
+A: São links relacionados que aparecem em uma seção dedicada no post publicado. Importantes para SEO e navegação.
+
+**Q: Quantos links posso adicionar?**  
+A: Até 5 links por post.
+
+**Q: Os links aparecem no preview?**  
+A: Sim! Tanto no preview quanto no post publicado.
+
+**Q: Links não aparecem no post publicado?**  
+A: Verifique se preencheu **título E URL** para cada link. Campos vazios são ignorados.
+
+**Q: Posso usar links internos?**  
+A: Sim! Use tanto links internos (outros posts) quanto externos.
+
+---
+
+### Auto-Save
+
+**Q: O formulário salva automaticamente?**  
+A: Sim! Dados são salvos no localStorage do navegador a cada alteração.
+
+**Q: Como limpar dados salvos?**  
+A: Clique no botão "🗑️ Limpar Campos" no topo do formulário.
+
+**Q: Ao fechar o navegador, perco os dados?**  
+A: Não! Os dados ficam salvos no localStorage e são recuperados ao reabrir.
+
+**Q: O auto-save funciona com imagens?**  
+A: URLs de imagens sim, mas arquivos não (por segurança).
 
 ---
 
@@ -526,6 +578,68 @@ const base64Content = btoa(
 ---
 
 ## 🖼️ PROBLEMAS COM IMAGENS
+
+### ⭐ Upload de Imagens v4.0 - Problemas Comuns
+
+**Problema 1:** Imagens vão para pasta "post" em vez do slug correto
+
+**Causa:** Título/slug não preenchido antes do upload
+
+**Solução:**
+1. Preencha o TÍTULO do post primeiro
+2. Slug é gerado automaticamente
+3. Depois faça upload das imagens
+
+**Verificar:**
+```javascript
+// Console do navegador
+document.getElementById('slug').value
+// Deve mostrar: "meu-titulo-do-post"
+```
+
+---
+
+**Problema 2:** Upload falha com "Token não configurado"
+
+**Solução:**
+```javascript
+// No console (F12)
+localStorage.setItem('github_token', 'ghp_SEU_TOKEN_AQUI');
+location.reload();
+```
+
+---
+
+**Problema 3:** Imagens não aparecem no post publicado
+
+**Causa comum v4.0:** URL ainda é Base64 em vez de GitHub URL
+
+**Verificar:**
+- Campo de URL deve mostrar: `https://raw.githubusercontent.com/...`
+- Se mostrar `data:image/...`, o upload não completou
+
+**Solução:**
+1. Faça upload novamente
+2. Aguarde o status mudar para verde "Enviada!"
+3. Verifique se o campo tem URL do GitHub
+
+---
+
+**Problema 4:** Avatar de um post sobrescreve outro
+
+**NÃO é mais problema na v4.0!**
+
+Agora cada post tem pasta própria:
+- Post A: `posts/post-a/avatar.jpg`
+- Post B: `posts/post-b/avatar.jpg`
+
+Se ainda acontecer, verifique a versão do script:
+```javascript
+// Console - deve mostrar v4.0
+// Procure no log: "GitHub Image Uploader v4.0 carregado"
+```
+
+---
 
 ### Google Drive - Imagem não aparece
 

@@ -48,3 +48,6 @@ config.local.js
 
 # Arquivos de teste temporários
 test-*.local.html
+
+# Snyk Security Extension - AI Rules (auto-generated)
+.github/instructions/snyk_rules.instructions.md

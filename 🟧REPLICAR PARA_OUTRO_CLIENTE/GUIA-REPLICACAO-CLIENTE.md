@@ -1,7 +1,12 @@
 # 🚀 GUIA RÁPIDO: REPLICAR BLOG PARA NOVO CLIENTE
 
 **Tempo estimado:** 30-45 minutos  
-**Dificuldade:** ⭐⭐☆☆☆ (Intermediário)
+**Dificuldade:** ⭐⭐☆☆☆ (Intermediário)  
+**Versão:** 4.0 (Upload Imediato)
+
+> 📤 **v4.0:** Sistema de upload IMEDIATO de imagens para GitHub!  
+> Imagens são enviadas ao selecionar, não no momento da publicação.  
+> Veja o guia completo em: **[UPLOAD-IMAGENS-GUIDE.md](UPLOAD-IMAGENS-GUIDE.md)**
 
 ---
 
@@ -10,7 +15,8 @@
 ### FASE 1: PREPARAÇÃO (5 min)
 
 - [ ] Cliente tem conta no GitHub? (Se não, criar)
-- [ ] Gerar Personal Access Token do GitHub
+- [ ] Gerar Personal Access Token do GitHub (scope: `repo`)
+- [ ] **[NOVO]** Configurar token para upload de imagens
 - [ ] Anotar: Token, Nome do repositório desejado
 - [ ] Ter logo do cliente em .webp ou .png
 - [ ] Ter cores da marca do cliente (código hex)
@@ -170,7 +176,58 @@ Edite: `assets/js/form-script.js`
 
 ---
 
-### FASE 5: COMMIT DAS MUDANÇAS (2 min)
+### FASE 5: CONFIGURAR UPLOAD DE IMAGENS v4.0 (5 min) 📤
+
+> **IMPORTANTE:** Sistema de upload IMEDIATO - imagens vão para GitHub ao selecionar!
+
+#### **5.1. Gerar Token para o Cliente**
+
+1. Cliente acessa: https://github.com/settings/tokens
+2. **"Generate new token (classic)"**
+3. Configure:
+   ```
+   Note: Blog Image Uploader
+   Expiration: No expiration
+   Scopes: ✅ repo (marcar tudo)
+   ```
+4. **COPIAR O TOKEN** (só aparece uma vez!)
+
+#### **5.2. Configurar no Navegador do Cliente**
+
+1. Cliente abre: `https://[usuario].github.io/[repositorio]/postin.html`
+2. Pressiona **F12** (Console)
+3. Executa:
+   ```javascript
+   localStorage.setItem('github_token', 'ghp_XXXXXXXXXXXXX');
+   location.reload();
+   ```
+
+#### **5.3. Testar Sistema (v4.0)**
+
+⚠️ **IMPORTANTE:** Preencher TÍTULO do post ANTES de fazer upload das imagens!
+
+- [ ] Cliente preenche o **TÍTULO** do post (slug é gerado automaticamente)
+- [ ] Cliente clica em **"📤 UPLOAD IMAGEM"**
+- [ ] Seleciona uma imagem do computador
+- [ ] Aguarda mensagem: **"Capa enviada!"** (verde)
+- [ ] URL do GitHub preenchida automaticamente
+- [ ] Verifica repositório `blog-images/posts/{slug}/` no GitHub
+
+**Estrutura de Pastas (v4.0):**
+```
+blog-images/
+└── posts/
+    └── {slug-do-post}/
+        ├── avatar.jpg    ← Cada post tem seu avatar
+        ├── cover.jpg     ← Imagem de capa
+        └── image-{n}.jpg ← Imagens internas
+```
+
+📖 **Guia completo:** [UPLOAD-IMAGENS-GUIDE.md](UPLOAD-IMAGENS-GUIDE.md)
+
+---
+
+### FASE 6: COMMIT DAS MUDANÇAS (2 min)
 
 ```bash
 # Adicione todas as alterações
@@ -182,7 +239,8 @@ git commit -m "feat: Personalização para cliente [NOME]
 - Logo e favicon atualizados
 - Cores da marca aplicadas (#HEXCODE)
 - Textos e links personalizados
-- Footer com informações do cliente"
+- Footer com informações do cliente
+- Sistema de upload de imagens configurado"
 
 # Push para o GitHub
 git push origin main
@@ -190,9 +248,9 @@ git push origin main
 
 ---
 
-### FASE 6: CONFIGURAR DOMÍNIO CUSTOMIZADO (Opcional - 10 min)
+### FASE 7: CONFIGURAR DOMÍNIO CUSTOMIZADO (Opcional - 10 min)
 
-#### **6.1. No Repositório**
+#### **7.1. No Repositório**
 
 Crie arquivo `CNAME` na raiz:
 

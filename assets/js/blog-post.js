@@ -39,13 +39,11 @@ async function loadRelatedPosts() {
         if (isLocal) {
             // Modo LOCAL - Lista manual de posts
             htmlFiles = [
-                { name: 'marble-or-granite-guide-for-your-home-in-worcester' },
                 { name: 'window-replacement-massachusetts-guide' }
             ];
         } else {
             // Modo GITHUB PAGES - Busca via API
-            const repoMatch = window.location.pathname.match(/^\/([^\/]+)/);
-            const repoName = repoMatch ? repoMatch[1] : 'blog-template-md';
+            const repoName = 'BLOG-XENON';
             
             const response = await fetch(`https://api.github.com/repos/mediagrowthmkt-debug/${repoName}/contents/posts`);
             
@@ -70,7 +68,11 @@ async function loadRelatedPosts() {
         const postsToShow = htmlFiles.slice(0, 3);
         
         if (postsToShow.length === 0) {
-            relatedGrid.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.5);">Nenhum post relacionado disponível.</p>';
+            const message = document.createElement('p');
+            message.style.textAlign = 'center';
+            message.style.color = 'rgba(255,255,255,0.5)';
+            message.textContent = 'Nenhum post relacionado disponível.';
+            relatedGrid.replaceChildren(message);
             return;
         }
         
@@ -79,24 +81,17 @@ async function loadRelatedPosts() {
         const validPosts = posts.filter(p => p !== null);
         
         // Renderiza os posts
-        relatedGrid.innerHTML = validPosts.map(post => `
-            <a href="${post.url}" class="related-card">
-                <div class="related-image">
-                    <img src="${post.image}" alt="${escapeHtmlAttr(post.title)}" loading="lazy" onerror="this.src='../assets/images/logo-mediagrowth.webp'">
-                </div>
-                <div class="related-content">
-                    <span class="related-category">${escapeHtmlAttr(post.category)}</span>
-                    <h3 class="related-title">${escapeHtmlAttr(post.title)}</h3>
-                    <p class="related-excerpt">${escapeHtmlAttr(post.excerpt)}</p>
-                </div>
-            </a>
-        `).join('');
+        relatedGrid.replaceChildren(...validPosts.map(post => createRelatedCard(post)));
         
         console.log('✅ Posts relacionados carregados:', validPosts.length);
         
     } catch (error) {
         console.error('❌ Erro ao carregar posts relacionados:', error);
-        relatedGrid.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.5);">Erro ao carregar posts relacionados.</p>';
+    const message = document.createElement('p');
+    message.style.textAlign = 'center';
+    message.style.color = 'rgba(255,255,255,0.5)';
+    message.textContent = 'Erro ao carregar posts relacionados.';
+    relatedGrid.replaceChildren(message);
     }
 }
 
@@ -121,7 +116,7 @@ async function loadPostMetadata(filename) {
                           doc.querySelector('.post-intro p')?.textContent?.substring(0, 120) || '';
         const image = doc.querySelector('meta[property="og:image"]')?.content || 
                      doc.querySelector('.cover-image img')?.src || 
-                     '../assets/images/logo-mediagrowth.webp';
+                     '../assets/images/logo-motel-xenon.png';
         const category = doc.querySelector('meta[name="category"]')?.content || 
                         doc.querySelector('.category-badge')?.textContent || 'Geral';
         
@@ -188,7 +183,7 @@ function initShareButton() {
         const title = titleElement ? String(titleElement.textContent).trim() : String(document.title).trim();
         
         // Sanitiza URL - usa apenas origin + pathname, descarta query/hash potencialmente maliciosos
-        const url = window.location.origin + window.location.pathname;
+    const url = sanitizeUrl(window.location.origin + window.location.pathname);
         
         // Tenta usar Web Share API (mobile)
         if (navigator.share) {
@@ -212,16 +207,69 @@ function copyToClipboard(text) {
     if (navigator.clipboard) {
         navigator.clipboard.writeText(text);
     } else {
-        // Fallback para navegadores antigos
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
+        console.warn('Clipboard API não disponível neste navegador.');
     }
+}
+
+function createRelatedCard(post) {
+    const card = document.createElement('a');
+    card.className = 'related-card';
+    card.href = sanitizeUrl(post.url);
+
+    const imageWrapper = document.createElement('div');
+    imageWrapper.className = 'related-image';
+
+    const image = document.createElement('img');
+    image.loading = 'lazy';
+    image.src = sanitizeUrl(post.image);
+    image.alt = escapeHtmlAttr(post.title);
+    image.onerror = () => {
+        image.src = '../assets/images/logo-motel-xenon.png';
+    };
+
+    imageWrapper.appendChild(image);
+
+    const content = document.createElement('div');
+    content.className = 'related-content';
+
+    const category = document.createElement('span');
+    category.className = 'related-category';
+    category.textContent = escapeHtmlAttr(post.category);
+
+    const title = document.createElement('h3');
+    title.className = 'related-title';
+    title.textContent = escapeHtmlAttr(post.title);
+
+    const excerpt = document.createElement('p');
+    excerpt.className = 'related-excerpt';
+    excerpt.textContent = escapeHtmlAttr(post.excerpt);
+
+    content.appendChild(category);
+    content.appendChild(title);
+    content.appendChild(excerpt);
+
+    card.appendChild(imageWrapper);
+    card.appendChild(content);
+
+    return card;
+}
+
+function sanitizeUrl(url) {
+    if (!url) return '#';
+    const trimmed = String(url).trim();
+    if (/^(\/(?!\/)|\.\/|\.\.\/)/.test(trimmed)) {
+        return trimmed;
+    }
+    try {
+        const parsed = new URL(trimmed);
+        const protocol = parsed.protocol.toLowerCase();
+        if (protocol === 'http:' || protocol === 'https:') {
+            return parsed.href;
+        }
+    } catch (error) {
+        return '#';
+    }
+    return '#';
 }
 
 function showNotification(message) {
