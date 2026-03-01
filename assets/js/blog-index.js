@@ -355,9 +355,22 @@ function escapeHtml(value) {
 function sanitizeUrl(url) {
     if (!url) return '#';
     const trimmed = String(url).trim();
-    if (/^(\/(?!\/)|\.\/|\.\.\/)/.test(trimmed)) {
+    
+    // Permitir caminhos relativos seguros (posts/xxx.html, ./xxx, ../xxx, /xxx)
+    // Regex: aceita caminhos que começam com letra/número seguido de / (ex: posts/)
+    // ou que começam com /, ./, ../
+    if (/^(\/(?!\/)|\.\/|\.\.\/|[a-zA-Z0-9][a-zA-Z0-9_-]*\/)/.test(trimmed)) {
+        // Verificar se não contém protocolos perigosos escondidos
+        if (!trimmed.includes('javascript:') && !trimmed.includes('data:')) {
+            return trimmed;
+        }
+    }
+    
+    // Permitir arquivos .html no mesmo nível
+    if (/^[a-zA-Z0-9][a-zA-Z0-9_-]*\.html$/.test(trimmed)) {
         return trimmed;
     }
+    
     try {
         const parsed = new URL(trimmed);
         const protocol = parsed.protocol.toLowerCase();
